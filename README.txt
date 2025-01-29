@@ -5,4 +5,4 @@ Required Plugins/Add-Ons:
 
 Folders for the website include:
 * data/www (where all the html files go)
-* data/images (where all the images go)
+* data/assets (where all the assets go)
