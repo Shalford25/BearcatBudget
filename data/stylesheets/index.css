@@ -11,11 +11,12 @@ html{
 }
 .card{
   padding: 20px;
+  position:relative;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 300px;
 }
-h2 {
+h2, p{
     text-align: center;
     margin-bottom: 20px;
     color: #333;
