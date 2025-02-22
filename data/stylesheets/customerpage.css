@@ -1,0 +1,76 @@
+html {
+    font-family: Arial, Helvetica, sans-serif;
+    height: 100%;
+}
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.banner {
+    background-color: #2b5ecc;
+    color: white;
+    padding: 20px;
+    text-align: left;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar {
+    display: flex;
+    gap: 10px; /* Add space between buttons */
+}
+.main {
+    display: flex;
+    flex: 1;
+}
+.sidebar {
+    background-color: #f4f4f4;
+    padding: 20px;
+    width: 150px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align items to the start */
+}
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: auto; /* Push the list to the bottom */
+}
+.sidebar li {
+    margin: 20px 0; /* Increase the spacing between items */
+}
+.sidebar a {
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+}
+.content {
+    margin-left: 200px; /* Adjust to the width of the sidebar */
+    padding: 20px;
+    flex: 1;
+    overflow: auto;
+}
+.accountBar {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    align-items: center;
+}
+.container {
+    display: grid;
+    grid-template-rows: repeat(2, auto); /* 2 rows */
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    gap: 10px; /* Add space between grid items */
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
