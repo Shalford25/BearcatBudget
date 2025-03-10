@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body {
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
@@ -52,3 +53,8 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
   }
+=======
+html{
+    font-family:Arial, Helvetica, sans-serif;
+}
+>>>>>>> b0b4fc77fdb0f7a5801dac1bcf373974922ae263
