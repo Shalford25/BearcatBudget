@@ -1,16 +1,50 @@
 <! -- This is the login page -- >
 <!DOCTYPE html>
 <html>
+    <link rel="stylesheet" href="../stylesheets/login.css" type="text/css"/>
     <head>
         <title>Login | Bearcat Budget</title>
-        <style>
 
+        <style>
         </style>
         <script>
-
         </script>
     </head>
     <body>
-        <h1>Login</h1>
+        <div class="topnav">
+            <h1>
+            <img src="assets/BearcatBudgetLogo.jpg" alt="Lander" class="image" width="25" height="25">
+            Bearcat Budget
+            <a class="active" href="#Settings">Settings</a><!add actually link>
+            <a href="#news">Help</a> <!add actually link>
+            <a href="#contact">FeedBack</a> <!add actually link>
+            </h1>
+          </div>
+          
+    <div style="padding-left:16px">  
+        <div class="container" >
+            <div id="div2" style="position:relative; right: 100 px;top:50px" class="Login">
+                <button type="button">Log-in</button> 
+        <br> <label for ="userName"> Username: </label>
+        <br>
+        <input type ="text" id="userName" name="userName" value="">
+        <br>
+        <br>
+        <label for ="Password"> Password:
+        </label>
+        <br>
+        <input type="password" id= "pwd" name="pwd" value="">
+        <br>
+        <input type="checkbox" id="keepLoggedIn"   name="keepLoggedIn" value="1"/> Keep me Logged In  
+        <input type="submit" value="Submit"/>
+        <div class = forgotInfo >
+            <a href="#forgotUsername">Forgot Username?</a> <!add actually link>
+            <br>
+            <a href="#forgotPassword">Forgot Password?</a> <!add actually link>
+
+
+        </div>
+\
+
     </body>
 </html>
