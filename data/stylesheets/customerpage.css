@@ -21,6 +21,27 @@ body {
     height: 50px;
     box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.1);
 }
+.navbar {
+    display: flex;
+    gap: 10px;
+}
+.navbar input[type="button"] {
+    background-color: #1e4a8a;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+.navbar input[type="button"]:hover {
+    background-color: #163a6b;
+}
 .accentBar {
     width: 100%;
     height: 25px;
@@ -29,14 +50,6 @@ body {
     margin-top: 90px;
     position: absolute;
     left: 0;
-}
-.navbar {
-    display: flex;
-    gap: 10px;
-}
-.main {
-    display: flex;
-    flex: 1;
 }
 .content {
     padding: 20px;
