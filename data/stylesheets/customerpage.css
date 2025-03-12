@@ -18,28 +18,25 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 50px;
+    box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.1);
+}
+.accentBar {
+    width: 100%;
+    height: 25px;
+    background-color: #eccc16; 
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 90px;
+    position: absolute;
+    left: 0;
 }
 .navbar {
     display: flex;
-    gap: 10px; /* Add space between buttons */
+    gap: 10px;
 }
 .main {
     display: flex;
     flex: 1;
-}
-
-.sidebar ul {
-    list-style-type: none;
-    padding: 0;
-    margin-top: auto; /* Push the list to the bottom */
-}
-.sidebar li {
-    margin: 20px 0; /* Increase the spacing between items */
-}
-.sidebar a {
-    color: #000;
-    text-decoration: none;
-    font-weight: bold;
 }
 .content {
     padding: 20px;
