@@ -3,12 +3,92 @@
 <html>
     <head>
         <title>Database | Bearcat Budget</title>
-        <script src="../www/myscript.js">
+        <script src="../javascript/mySQLintegration.js"></script>
+        <script>
+            function addRow() {
+            var entryData = {};
+            document.querySelectorAll('#dataTable input').forEach(input => {
+                entryData[input.name] = input.value;
+            });
+            addEntry(entryData);
+        }
 
+        function updateRow() {
+            var updateData = {};
+            document.querySelectorAll('#dataTable input').forEach(input => {
+                updateData[input.name] = input.value;
+            });
+            var condition = "id=" + document.getElementById('id').value; // Adjust condition as needed
+            updateEntry(updateData, condition);
+        }
+
+        function deleteRow() {
+            var condition = "id=" + document.getElementById('id').value; // Adjust condition as needed
+            removeEntry(condition);
+        }
+
+        function addColumn() {
+            var table = document.getElementById('dataTable');
+            var headerRow = table.rows[0];
+            var dataRow = table.rows[1];
+            
+            var newHeader = document.createElement('th');
+            newHeader.innerText = 'New Column';
+            headerRow.appendChild(newHeader);
+
+            var newData = document.createElement('td');
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'newColumn'; // Adjust name as needed
+            newData.appendChild(input);
+            dataRow.appendChild(newData);
+        }
+        
+        function displayTable(tableName) {
+            currTable(tableName);
+            // Fetch and display the table data
+            fetch(`../api/getTableData?table=${tableName}`)
+                .then(response => response.json())
+                .then(data => {
+                    var table = document.getElementById('dataTable');
+                    table.innerHTML = ''; // Clear existing table data
+
+                    // Create table headers
+                    var headerRow = document.createElement('tr');
+                    Object.keys(data[0]).forEach(key => {
+                        var th = document.createElement('th');
+                        th.innerText = key;
+                        headerRow.appendChild(th);
+                    });
+                    table.appendChild(headerRow);
+
+                    // Create table rows
+                    data.forEach(row => {
+                        var tr = document.createElement('tr');
+                        Object.values(row).forEach(value => {
+                            var td = document.createElement('td');
+                            td.innerText = value;
+                            tr.appendChild(td);
+                        });
+                        table.appendChild(tr);
+                    });
+                })
+                .catch(error => console.error('Error fetching table data:', error));
+        }
         </script>
     </head>
     <body>
         <h1>Database</h1>
+        <label for="tableName">Table Name:</label>
+    <input type="text" id="tableName" name="tableName">
+    <button onclick="displayTable(document.getElementById('tableName').value)">Display Table</button>
+    <table id="dataTable">
+        <!-- Table data will be dynamically inserted here -->
+    </table>
+    <button onclick="addRow()">Add Row</button>
+    <button onclick="updateRow()">Update Row</button>
+    <button onclick="deleteRow()">Delete Row</button>
+    <button onclick="addColumn()">Add Column</button>
     </body>
 
 
