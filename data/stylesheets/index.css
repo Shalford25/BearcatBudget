@@ -10,8 +10,8 @@ html{
   background-color:#d4d7dd;
 }
 h1{
-  color:rgb(0, 0, 0);
-  padding-right:20px;
+  color:white;
+  padding-left:20px;
   text-align:right;
 }
 .top-bar, .bottom-bar {
@@ -23,7 +23,7 @@ h1{
   background-color: #2b5ecc;
   display: flex;
   align-items: center;
-  justify-content: right;
+  justify-content: left;
 }
 .top-bar {
   top: 0;
@@ -68,12 +68,9 @@ h2, p{
     align-items: center;
     gap: 40px;
     position:relative;
-    left: 200px;
+    left: 350px;
     top:50%;
     transform:translateY(55%);
-  }
-.img-container{
-    flex: 0 0 auto;
   }
   .image{
     width:250px;
