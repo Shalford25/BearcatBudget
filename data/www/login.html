@@ -5,9 +5,29 @@
     <head>
         <title>Login | Bearcat Budget</title>
 
-        <style>
-        </style>
+        <style src="../javascript/mySQLintegration.js"></style>
         <script>
+            function login() {
+                var username = document.getElementById('userName').value;
+                var password = document.getElementById('pwd').value;
+
+                // Select the accounts table
+                currTable('accounts');
+
+                // Verify the entered username and password
+                var condition = `username='${username}' AND password='${password}'`;
+                var sql = `SELECT * FROM ${currentTable} WHERE ${condition}`;
+
+                con.query(sql, function (err, result) {
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        alert('Login successful!');
+                        // Redirect to another page or perform other actions
+                    } else {
+                        alert('Invalid username or password.');
+                    }
+                });
+            }
         </script>
     </head>
     <body>
