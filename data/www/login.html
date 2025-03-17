@@ -1,30 +1,43 @@
 <! -- This is the login page -- >
 <!DOCTYPE html>
 <html>
-    <link rel="stylesheet" href="../stylesheets/login.css" type="text/css"/>
     <head>
-        <title>Login | Bearcat Budget</title>
-
+    <title>Login | Bearcat Budget</title>
+    <link rel="stylesheet" href="../stylesheets/login.css" type="text/css"/>
         <style>
+            html{
+            background-size:cover;
+            background-attachment:fixed;
+            }
         </style>
+
+
         <script>
         </script>
+
+        
     </head>
     <body>
-        <div class="topnav">
-            <h1>
-            <img src="assets/BearcatBudgetLogo.jpg" alt="Lander" class="image" width="25" height="25">
-            Bearcat Budget
-            <a class="active" href="#Settings">Settings</a><!add actually link>
-            <a href="#news">Help</a> <!add actually link>
-            <a href="#contact">FeedBack</a> <!add actually link>
-            </h1>
-          </div>
+        <div class="top-bar"><h1> Bearcat Budget </h1>
+
+        <h3><div class="accent-bar accent-bar-top">
+                        <a class="active" href="#Settings">Settings</a><!add actually link>
+                        <a href="#news">Help</a> <!add actually link>
+                        <a href="#contact">FeedBack</a> <!add actually link>
+                   
+        </div></h3>
+        <div class="img-container">
+
+            <img src="../assets/BearcatBudgetLogo.jpg" alt="Lander" class="image">
+            </div>
+
+      
+        </div>
+        
           
-    <div style="padding-left:16px">  
-        <div class="container" >
-            <div id="div2" style="position:relative; right: 100 px;top:50px" class="Login">
-                <button type="button">Log-in</button> 
+
+        <div class="loginframe" >
+                
         <br> <label for ="userName"> Username: </label>
         <br>
         <input type ="text" id="userName" name="userName" value="">
@@ -35,6 +48,9 @@
         <br>
         <input type="password" id= "pwd" name="pwd" value="">
         <br>
+        <br>
+        <button type="button">Log-in</button> 
+        <br>
         <input type="checkbox" id="keepLoggedIn"   name="keepLoggedIn" value="1"/> Keep me Logged In  
         <input type="submit" value="Submit"/>
         <div class = forgotInfo >
@@ -44,6 +60,10 @@
 
 
         </div>
+        </div>
+   
+        <div class="accent-bar accent-bar-bottom"></div>
+        <div class="bottom-bar"></div>
 \
 
     </body>
