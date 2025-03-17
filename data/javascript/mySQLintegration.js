@@ -1,11 +1,3 @@
-var mysql = require('mysql');
-var con = mysql.createConnection({
-   host: "localhost",
-   user: "root",
-   password: "mypassword",
-   database: "bearcatbudget"
-});
-
 var currentTable = "";
 function currTable(tableName){
    currentTable = tableName;
