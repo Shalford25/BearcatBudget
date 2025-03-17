@@ -3,7 +3,7 @@ var con = mysql.createConnection({
    host: "localhost",
    user: "root",
    password: "mypassword",
-   database: "mydb"
+   database: "bearcatbudget"
 });
 
 var currentTable = "";
