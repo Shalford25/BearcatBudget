@@ -14,28 +14,21 @@
 
         <title>Login | Bearcat Budget</title>
 
-        <style src="../javascript/mySQLintegration.js"></style>
         <script>
-            function login() {
-                var username = document.getElementById('userName').value;
-                var password = document.getElementById('pwd').value;
+            async function login() {
+                const username = document.getElementById('userName').value;
+                const password = document.getElementById('pwd').value;
 
-                // Select the accounts table
-                currTable('accounts');
-
-                // Verify the entered username and password
-                var condition = `username='${username}' AND password='${password}'`;
-                var sql = `SELECT * FROM ${currentTable} WHERE ${condition}`;
-
-                con.query(sql, function (err, result) {
-                    if (err) throw err;
-                    if (result.length > 0) {
-                        alert('Login successful!');
-                        // Redirect to another page or perform other actions
-                    } else {
-                        alert('Invalid username or password.');
-                    }
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
                 });
+
+                const result = await response.text();
+                alert(result);
             }
         </script>
 
@@ -70,13 +63,15 @@
         <label for ="Password"> Password:
         </label>
         <br>
+        <input type="password" id="pwd" name="pwd" value="">
+        <br>
+        <input type="checkbox" id="keepLoggedIn" name="keepLoggedIn" value="1"> Keep me Logged In
         <input type="password" id= "pwd" name="pwd" value="">
         <br>
         <br>
         <button type="button">Log-in</button> 
         <br>
-        <input type="checkbox" id="keepLoggedIn"   name="keepLoggedIn" value="1"/> Keep me Logged In  
-        <input type="submit" value="Submit"/>
+        <button type="button" onclick="login()">Submit</button>
         <div class = forgotInfo >
             <a href="#forgotUsername">Forgot Username?</a> <!add actually link>
             <br>
