@@ -27,22 +27,16 @@
                     alert('Please enter both username and password.');
                     return;
                 }
-
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
-
                 try {
                     console.log('Sending fetch request...'); // Debugging log
 
                     const response = await fetch('http://localhost:3500/login', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({ username, password }),
                     });
-
-                    clearTimeout(timeoutId);
 
                     console.log('Response received:', response); // Debugging log
 
