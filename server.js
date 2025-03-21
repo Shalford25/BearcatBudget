@@ -69,43 +69,50 @@ handleDisconnect();
 
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
-    console.log('Received POST request to /login'); // Debugging log
-    console.log('Request body:', req.body); // Debugging log
+    try {
+        console.log('Received POST request to /login'); // Debugging log
+        console.log('Request body:', req.body); // Debugging log
 
-    const { username, password } = req.body;
+        const { username, password } = req.body;
 
-    if (!username || !password) {
-        res.status(400).send({
-            success: false,
-            message: 'Username and password are required.',
-        });
-        return;
-    }
-
-    const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
-
-    console.log('Executing query:', sql); // Debugging log
-    console.log('Query parameters:', [username, password]); // Debugging log
-
-    pool.query(sql, [username, password], (err, result) => {
-        if (err) {
-            console.error('Database query error:', err); // Debugging log
-            res.status(500).send({
+        if (!username || !password) {
+            console.error('Missing username or password'); // Debugging log
+            return res.status(400).json({
                 success: false,
-                message: 'An error occurred while querying the database.',
-                error: err.code, // Include the error code for debugging
+                message: 'Username and password are required.',
             });
-            return;
         }
 
-        console.log('Query result:', result); // Debugging log
+        const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
 
-        if (result.length > 0) {
-            res.send({ success: true, message: 'Login successful!' });
-        } else {
-            res.send({ success: false, message: 'Invalid username or password.' });
-        }
-    });
+        console.log('Executing query:', sql); // Debugging log
+        console.log('Query parameters:', [username, password]); // Debugging log
+
+        pool.query(sql, [username, password], (err, result) => {
+            if (err) {
+                console.error('Database query error:', err); // Debugging log
+                return res.status(500).json({
+                    success: false,
+                    message: 'An error occurred while querying the database.',
+                    error: err.code, // Include the error code for debugging
+                });
+            }
+
+            console.log('Query result:', result); // Debugging log
+
+            if (result.length > 0) {
+                res.json({ success: true, message: 'Login successful!' });
+            } else {
+                res.json({ success: false, message: 'Invalid username or password.' });
+            }
+        });
+    } catch (error) {
+        console.error('Unexpected error in /login route:', error); // Debugging log
+        res.status(500).json({
+            success: false,
+            message: 'An unexpected error occurred.',
+        });
+    }
 });
 
 // Start the server
