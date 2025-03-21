@@ -32,9 +32,45 @@ const pool = mysql.createPool({
     port: 3306, // Ensure this matches your MySQL server's port
 });
 
+// Periodically ping the database to keep the connection alive
+setInterval(() => {
+    pool.query('SELECT 1', (err) => {
+        if (err) {
+            console.error('Error pinging the database:', err);
+        } else {
+            console.log('Database connection is alive.');
+        }
+    });
+}, 60000); // Ping every 60 seconds
+
+// Handle MySQL pool errors
 pool.on('error', (err) => {
-    console.error('MySQL Pool Error:', err); // Debugging log
+    console.error('MySQL Pool Error:', err);
+
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        console.error('Database connection was closed.');
+    } else if (err.code === 'ER_CON_COUNT_ERROR') {
+        console.error('Database has too many connections.');
+    } else if (err.code === 'ECONNREFUSED') {
+        console.error('Database connection was refused.');
+    }
 });
+
+// Reconnect on fatal errors
+function handleDisconnect() {
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('Error getting connection from pool:', err);
+
+            // Retry after 2 seconds if the connection fails
+            setTimeout(handleDisconnect, 2000);
+        } else {
+            console.log('Reconnected to the database.');
+            if (connection) connection.release();
+        }
+    });
+}
+handleDisconnect();
 
 // Handle preflight requests
 app.options('*', (req, res) => {
