@@ -22,20 +22,17 @@ app.use((req, res, next) => {
     next();
 });
 
-// Create MySQL connection
-const con = mysql.createConnection({
+// Create a MySQL connection pool
+const pool = mysql.createPool({
+    connectionLimit: 10, // Maximum number of connections in the pool
     host: 'localhost',
     user: 'root',
     password: 'yeet',
-    database: 'bearcatbudget'
+    database: 'bearcatbudget',
 });
 
-// Connect to MySQL
-con.connect(function(err) {
-    if (err) {
-        return console.error('Error: ' + err.message);
-    }
-    console.log('Connected to the MySQL server.');
+pool.on('error', (err) => {
+    console.error('MySQL Pool Error:', err);
 });
 
 // Handle preflight requests
@@ -53,21 +50,12 @@ app.post('/login', (req, res) => {
     const { username, password } = req.body;
     const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
 
-    con.query(sql, [username, password], (err, result) => {
+    pool.query(sql, [username, password], (err, result) => {
         if (err) {
-            // Log the detailed error on the server
             console.error('Database query error:', err);
-
-            // Send a detailed but sanitized error response to the client
             res.status(500).send({
                 success: false,
                 message: 'An error occurred while querying the database.',
-                error: {
-                    code: err.code, // MySQL error code
-                    errno: err.errno, // MySQL error number
-                    sqlMessage: err.sqlMessage, // MySQL error message
-                    sqlState: err.sqlState, // SQL state
-                },
             });
             return;
         }
@@ -84,3 +72,8 @@ app.post('/login', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
+
+// MySQL configuration
+[mysqld]
+wait_timeout = 28800
+interactive_timeout = 28800
