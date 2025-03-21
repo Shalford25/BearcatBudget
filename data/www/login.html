@@ -15,8 +15,13 @@
         <script src="../javascript/mySQLintegration.js"></script>
         <script>
             async function login() {
+                console.log('Login function triggered'); // Debugging log
+
                 const username = document.getElementById('userName').value;
                 const password = document.getElementById('pwd').value;
+
+                console.log('Username:', username); // Debugging log
+                console.log('Password:', password); // Debugging log
 
                 if (!username || !password) {
                     alert('Please enter both username and password.');
@@ -24,19 +29,22 @@
                 }
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 5-second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
                 try {
+                    console.log('Sending fetch request...'); // Debugging log
+
                     const response = await fetch('http://localhost:3500/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ username, password }),
-                        signal: controller.signal
                     });
 
                     clearTimeout(timeoutId);
+
+                    console.log('Response received:', response); // Debugging log
 
                     if (!response.ok) {
                         const errorDetails = await response.text();
@@ -44,19 +52,19 @@
                     }
 
                     const result = await response.json();
+                    console.log('Result:', result); // Debugging log
+
                     if (result.success) {
                         alert(result.message);
                     } else {
                         alert(result.message);
                     }
                 } catch (error) {
+                    console.error('Error caught:', error); // Debugging log
+
                     if (error.name === 'AbortError') {
                         alert('Request timed out. Please try again.');
                     } else {
-                        console.error('Fetch error details:', {
-                            message: error.message,
-                            stack: error.stack,
-                        });
                         alert('Failed to connect to the server. Please try again later.');
                     }
                 }
