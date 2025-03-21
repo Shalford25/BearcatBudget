@@ -6,10 +6,16 @@ const app = express();
 const port = 3500;
 
 // Enable CORS for all routes
-app.use(cors({}));
+app.use(cors());
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
+
+app.all('/*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    next();
+  });
 
 // Log incoming requests
 app.use((req, res, next) => {
