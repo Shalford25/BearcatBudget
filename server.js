@@ -29,6 +29,7 @@ const pool = mysql.createPool({
     user: 'root',
     password: 'yeet',
     database: 'bearcatbudget',
+    port: 3306
 });
 
 pool.on('error', (err) => {
@@ -56,7 +57,7 @@ app.post('/login', (req, res) => {
             res.status(500).send({
                 success: false,
                 message: 'An error occurred while querying the database.',
-                error: err, // Include the error details for debugging
+                error: err.code, // Include the error code for debugging
             });
             return;
         }
