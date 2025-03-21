@@ -70,13 +70,13 @@ handleDisconnect();
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
     try {
-        console.log('Received POST request to /login'); // Server-side log
-        console.log('Request body:', req.body); // Server-side log
+        console.log('Received POST request to /login'); // Debugging log
+        console.log('Request body:', req.body); // Debugging log
 
         const { username, password } = req.body;
 
         if (!username || !password) {
-            console.error('Missing username or password'); // Server-side log
+            console.error('Missing username or password'); // Debugging log
             return res.status(400).json({
                 success: false,
                 message: 'Username and password are required.',
@@ -86,12 +86,12 @@ app.post('/login', (req, res) => {
 
         const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
 
-        console.log('Executing query:', sql); // Server-side log
-        console.log('Query parameters:', [username, password]); // Server-side log
+        console.log('Executing query:', sql); // Debugging log
+        console.log('Query parameters:', [username, password]); // Debugging log
 
         pool.query(sql, [username, password], (err, result) => {
             if (err) {
-                console.error('Database query error:', err); // Server-side log
+                console.error('Database query error:', err); // Debugging log
                 return res.status(500).json({
                     success: false,
                     message: 'An error occurred while querying the database.',
@@ -99,16 +99,16 @@ app.post('/login', (req, res) => {
                 });
             }
 
-            console.log('Query result:', result); // Server-side log
+            console.log('Query result:', result); // Debugging log
 
             if (result.length > 0) {
                 res.json({ success: true, message: 'Login successful!' });
             } else {
-                res.json({ success: false, message: 'Invalid username or password.' });
+                res.status(401).json({ success: false, message: 'Invalid username or password.' });
             }
         });
     } catch (error) {
-        console.error('Unexpected error in /login route:', error); // Server-side log
+        console.error('Unexpected error in /login route:', error); // Debugging log
         res.status(500).json({
             success: false,
             message: 'An unexpected error occurred.',
