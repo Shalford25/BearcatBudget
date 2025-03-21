@@ -6,7 +6,11 @@ const app = express();
 const port = 3500;
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
@@ -43,6 +47,14 @@ app.post('/login', (req, res) => {
             res.send({ success: false, message: 'Invalid username or password.' });
         }
     });
+});
+
+// Handle preflight requests
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specific methods
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
+    res.sendStatus(200); // Respond with HTTP 200 for preflight
 });
 
 // Start the server
