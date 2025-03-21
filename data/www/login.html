@@ -42,14 +42,11 @@
                     console.log('Response received:', response); // Debugging log
 
                     if (!response.ok) {
-                        const errorDetails = await response.text();
-                        throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
+                        const errorDetails = await response.json(); // Parse the error response as JSON
+                        throw new Error(`HTTP error! Status: ${response.status}, Details: ${JSON.stringify(errorDetails)}`);
                     }
 
-                    const responseText = await response.text();
-                    console.log('Response text:', responseText);
-
-                    const result = await response.json();
+                    const result = await response.json(); // Parse the successful response as JSON
                     console.log('Result:', result); // Debugging log
 
                     if (result.success) {
