@@ -74,9 +74,9 @@ handleDisconnect();
 
 // Handle preflight requests
 app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*'); // Echo the origin
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*'); // Allow all origins
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allowed methods
+    res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type, Authorization'); // Allowed headers
     res.header('Access-Control-Max-Age', '86400'); // Cache preflight response for 24 hours
     res.sendStatus(200); // Respond with HTTP 200 for preflight
 });
