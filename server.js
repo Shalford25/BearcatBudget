@@ -7,9 +7,9 @@ const port = 3500;
 
 // Enable CORS for all routes
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: 'http://50.252.146.204', // Allow only this origin
+    methods: ['GET', 'POST', 'OPTIONS'], // Allow specific HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
 }));
 
 // Middleware to parse JSON
@@ -34,9 +34,10 @@ con.connect(function(err) {
 // Handle preflight requests
 app.options('*', (req, res) => {
     console.log(`Handling preflight request`);
-    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+    res.header('Access-Control-Allow-Origin', req.headers.origin); // Echo the origin
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specific methods
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
+    res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']); // Allow requested headers
+    res.header('Access-Control-Max-Age', '86400'); // Cache preflight response for 24 hours
     res.sendStatus(200); // Respond with HTTP 200 for preflight
 });
 
