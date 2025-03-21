@@ -69,38 +69,37 @@ handleDisconnect();
 
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
-    console.log('Received POST request to /login'); // Debugging log
-    console.log('Request body:', req.body); // Debugging log
     try {
-        console.log('Received POST request to /login'); // Debugging log
-        console.log('Request body:', req.body); // Debugging log
+        console.log('Received POST request to /login'); // Server-side log
+        console.log('Request body:', req.body); // Server-side log
 
         const { username, password } = req.body;
 
         if (!username || !password) {
-            console.error('Missing username or password'); // Debugging log
+            console.error('Missing username or password'); // Server-side log
             return res.status(400).json({
                 success: false,
                 message: 'Username and password are required.',
+                debug: 'Missing username or password', // Include debug info
             });
         }
 
         const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
 
-        console.log('Executing query:', sql); // Debugging log
-        console.log('Query parameters:', [username, password]); // Debugging log
+        console.log('Executing query:', sql); // Server-side log
+        console.log('Query parameters:', [username, password]); // Server-side log
 
         pool.query(sql, [username, password], (err, result) => {
             if (err) {
-                console.error('Database query error:', err); // Debugging log
+                console.error('Database query error:', err); // Server-side log
                 return res.status(500).json({
                     success: false,
                     message: 'An error occurred while querying the database.',
-                    error: err.code, // Include the error code for debugging
+                    debug: err.message, // Include debug info
                 });
             }
 
-            console.log('Query result:', result); // Debugging log
+            console.log('Query result:', result); // Server-side log
 
             if (result.length > 0) {
                 res.json({ success: true, message: 'Login successful!' });
@@ -109,10 +108,11 @@ app.post('/login', (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Unexpected error in /login route:', error); // Debugging log
+        console.error('Unexpected error in /login route:', error); // Server-side log
         res.status(500).json({
             success: false,
             message: 'An unexpected error occurred.',
+            debug: error.message, // Include debug info
         });
     }
 });
