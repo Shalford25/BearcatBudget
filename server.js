@@ -33,7 +33,7 @@ const pool = mysql.createPool({
 });
 
 pool.on('error', (err) => {
-    console.error('MySQL Pool Error:', err);
+    console.error('MySQL Pool Error:', err); // Debugging log
 });
 
 // Handle preflight requests
@@ -47,13 +47,24 @@ app.options('*', (req, res) => {
 
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
-    console.log(`Login attempt with username: ${req.body.username}`);
+    console.log('Received POST request to /login'); // Debugging log
+    console.log('Request body:', req.body); // Debugging log
+
     const { username, password } = req.body;
+
+    if (!username || !password) {
+        res.status(400).send({
+            success: false,
+            message: 'Username and password are required.',
+        });
+        return;
+    }
+
     const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
 
     pool.query(sql, [username, password], (err, result) => {
         if (err) {
-            console.error('Database query error:', err);
+            console.error('Database query error:', err); // Debugging log
             res.status(500).send({
                 success: false,
                 message: 'An error occurred while querying the database.',
@@ -61,6 +72,8 @@ app.post('/login', (req, res) => {
             });
             return;
         }
+
+        console.log('Query result:', result); // Debugging log
 
         if (result.length > 0) {
             res.send({ success: true, message: 'Login successful!' });
