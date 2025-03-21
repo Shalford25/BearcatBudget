@@ -10,29 +10,29 @@
             background-attachment:fixed;
             }
         </style>
-
-
         <title>Login | Bearcat Budget</title>
 
-        <style type="text/javascript" src="./javascript/mySQLintegration.js"></style>
-        <script language="javascript">
+        <script src="../javascript/mySQLintegration.js"></script>
+        <script>
             async function login() {
-                console.log("Test");
                 const username = document.getElementById('userName').value;
                 const password = document.getElementById('pwd').value;
-                currTable('accounts');
-                // Verify the entered username and password
-                var condition = `username='${username}' AND password='${password}'`;
-                var sql = `SELECT * FROM ${currentTable} WHERE ${condition}`;
-                con.query(sql, function (err, result) {
-                    if (err) throw err;
-                    if (result.length > 0) {
-                        alert('Login successful!');
-                        // Redirect to another page or perform other actions
-                    } else {
-                        alert('Invalid username or password.');
-                    }
-                    });
+                // Send login request to the server
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    // Redirect to another page or perform other actions
+                } else {
+                    alert(result.message);
+                }
             }
         </script>
 
