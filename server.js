@@ -6,7 +6,11 @@ const app = express();
 const port = 3000;
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:80', // Replace with your frontend's origin
+    methods: ['GET', 'POST'], // Specify allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'] // Specify allowed headers
+}));
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
