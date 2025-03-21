@@ -31,7 +31,16 @@ con.connect(function(err) {
     console.log('Connected to the MySQL server.');
 });
 
-// Login endpoint
+// Handle preflight requests
+app.options('*', (req, res) => {
+    console.log(`Handling preflight request`);
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specific methods
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
+    res.sendStatus(200); // Respond with HTTP 200 for preflight
+});
+
+// Other routes (e.g., /login)
 app.post('/login', (req, res) => {
     console.log(`Run attempt`);
     const { username, password } = req.body;
@@ -47,15 +56,6 @@ app.post('/login', (req, res) => {
             res.send({ success: false, message: 'Invalid username or password.' });
         }
     });
-});
-
-// Handle preflight requests
-app.options('*', (req, res) => {
-    console.log(`App Options`);
-    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specific methods
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
-    res.sendStatus(200); // Respond with HTTP 200 for preflight
 });
 
 // Start the server
