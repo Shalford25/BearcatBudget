@@ -42,14 +42,29 @@ app.options('*', (req, res) => {
 
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
-    console.log(`Run attempt`);
+    console.log(`Login attempt with username: ${req.body.username}`);
     const { username, password } = req.body;
     const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
+
     con.query(sql, [username, password], (err, result) => {
         if (err) {
-            res.status(500).send('Error querying the database');
+            // Log the detailed error on the server
+            console.error('Database query error:', err);
+
+            // Send a detailed but sanitized error response to the client
+            res.status(500).send({
+                success: false,
+                message: 'An error occurred while querying the database.',
+                error: {
+                    code: err.code, // MySQL error code
+                    errno: err.errno, // MySQL error number
+                    sqlMessage: err.sqlMessage, // MySQL error message
+                    sqlState: err.sqlState, // SQL state
+                },
+            });
             return;
         }
+
         if (result.length > 0) {
             res.send({ success: true, message: 'Login successful!' });
         } else {
