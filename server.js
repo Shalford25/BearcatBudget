@@ -7,13 +7,24 @@ const port = 3500;
 
 // Enable CORS for all routes
 app.use(cors({
-    origin: 'http://50.252.146.204', // Allow only this origin
+    origin: 'localhost', // Allow only this origin
     methods: ['GET', 'POST', 'OPTIONS'], // Allow specific HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
 }));
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
+
+// Add custom headers
+app.use((req, res, next) => {
+    res.setHeader('X-Powered-By', 'BearcatBudget');
+    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    next();
+});
 
 // Create MySQL connection
 const con = mysql.createConnection({
