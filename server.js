@@ -1,8 +1,11 @@
 const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const app = express();
 const port = 3000;
+
+app.use(cors());
 
 // Create MySQL connection
 const con = mysql.createConnection({
@@ -13,12 +16,11 @@ const con = mysql.createConnection({
 });
 
 // Connect to MySQL
-con.connect((err) => {
-    if (err) {
-        console.error('Error connecting to MySQL:', err);
-        return;
-    }
-    console.log('Connected to MySQL database');
+connection.connect(function(err) {
+if (err) {
+   return console.error('error: ' + err.message);
+}  
+   console.log('Connected to the MySQL server.');
 });
 
 // Middleware to parse JSON
