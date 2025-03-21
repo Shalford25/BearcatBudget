@@ -24,7 +24,7 @@
                 }
 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 5-second timeout
 
                 try {
                     const response = await fetch('http://localhost:3500/login', {
