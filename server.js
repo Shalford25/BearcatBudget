@@ -6,35 +6,10 @@ const app = express();
 const port = 3500;
 
 // Enable CORS for all routes
-app.use(cors({
-    origin: '*', // Allow all origins
-    methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Custom-Header'], // Allowed headers
-    maxAge: 86400, // Cache preflight response for 24 hours
-}));
-
-// Handle preflight requests
-app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*'); // Allow all origins
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allowed methods
-    res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers'] || 'Content-Type, Authorization, X-Custom-Header'); // Allowed headers
-    res.header('Access-Control-Max-Age', '86400'); // Cache preflight response for 24 hours
-    res.sendStatus(200); // Respond with HTTP 200 for preflight
-});
+app.use(cors({}));
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
-
-// Add custom headers
-app.use((req, res, next) => {
-    res.setHeader('X-Powered-By', 'BearcatBudget');
-    res.setHeader('Content-Security-Policy', "default-src 'self'");
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('Referrer-Policy', 'no-referrer');
-    next();
-});
 
 // Log incoming requests
 app.use((req, res, next) => {
