@@ -31,7 +31,8 @@
                     console.log('Request payload:', JSON.stringify({ username, password }));
 
                     const response = await fetch('http://localhost:3500/login', {
-                        body: JSON.stringify({ username, password }),
+                        method: 'POST',
+                        
                     });
 
                     console.log('Response received:', response); // Debugging log
