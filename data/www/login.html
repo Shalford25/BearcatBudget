@@ -14,21 +14,25 @@
 
         <title>Login | Bearcat Budget</title>
 
-        <script>
+        <style type="text/javascript" src="./javascript/mySQLintegration.js"></style>
+        <script language="javascript">
             async function login() {
+                console.log("Test");
                 const username = document.getElementById('userName').value;
                 const password = document.getElementById('pwd').value;
-
-                const response = await fetch('http://localhost:3000/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const result = await response.text();
-                alert(result);
+                currTable('accounts');
+                // Verify the entered username and password
+                var condition = `username='${username}' AND password='${password}'`;
+                var sql = `SELECT * FROM ${currentTable} WHERE ${condition}`;
+                con.query(sql, function (err, result) {
+                    if (err) throw err;
+                    if (result.length > 0) {
+                        alert('Login successful!');
+                        // Redirect to another page or perform other actions
+                    } else {
+                        alert('Invalid username or password.');
+                    }
+                    });
             }
         </script>
 
@@ -67,10 +71,7 @@
         <br>
         <input type="checkbox" id="keepLoggedIn" name="keepLoggedIn" value="1"> Keep me Logged In
         <br>
-        <br>
-        <button type="button">Log-in</button> 
-        <br>
-        <button type="button" onclick="login()">Submit</button>
+        <button type="button" onclick="login()">Login</button>
         <div class = forgotInfo >
             <a href="#forgotUsername">Forgot Username?</a> <!add actually link>
             <br>

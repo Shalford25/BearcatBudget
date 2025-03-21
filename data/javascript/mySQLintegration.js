@@ -4,12 +4,14 @@ function currTable(tableName){
    console.log("Current Table: "+currentTable);
 }
 
+window.currTable = currTable;
+
 function addEntry(entryData){
    if (currentTable === "") {
       console.log("No table selected.");
       return;
    }
-   
+
    var columns = Object.keys(entryData).join(", ");
    var values = Object.values(entryData).map(value => `'${value}'`).join(", ");
    var sql = `INSERT INTO ${currentTable} (${columns}) VALUES (${values})`;
@@ -53,3 +55,7 @@ function updateEntry(entryData){
 function tableGraphCompile(){
    
 }
+window.addEntry = addEntry;
+window.removeEntry = removeEntry;
+window.updateEntry = updateEntry;
+window.tableGraphCompile = tableGraphCompile;
