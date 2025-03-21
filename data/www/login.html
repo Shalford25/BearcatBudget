@@ -27,8 +27,10 @@
                         body: JSON.stringify({ username, password })
                     });
 
+                    // Check if the response is not OK (status code outside 200-299)
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        const errorDetails = await response.text(); // Attempt to read the response body
+                        throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
                     }
 
                     const result = await response.json();
@@ -38,7 +40,13 @@
                         alert(result.message);
                     }
                 } catch (error) {
-                    console.error('Error:', error);
+                    // Log detailed error information to the console
+                    console.error('Fetch error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                    });
+
+                    // Display a user-friendly error message
                     alert('Failed to connect to the server. Please try again later.');
                 }
             }
