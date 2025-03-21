@@ -22,12 +22,33 @@
 
                 console.log('Username:', username); // Debugging log
                 console.log('Password:', password); // Debugging log
-
                 if (!username || !password) {
                     alert('Please enter both username and password.');
                     return;
                 }
                 try {
+        const response = await fetch('http://localhost:3500/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(`Success: ${result.message}`);
+        } else {
+            alert(`Error: ${result.message}`);
+        }
+
+        console.log('Response:', result); // Log the response for debugging
+    } catch (error) {
+        console.error('Error:', error); // Log any network or unexpected errors
+        alert('Failed to connect to the server. Please try again later.');
+    }
+                /*try {
                     console.log('Sending fetch request...'); // Debugging log
                     console.log('Request payload:', JSON.stringify({ username, password }));
 
@@ -62,7 +83,7 @@
                     } else {
                         alert('Failed to connect to the server. Please try again later.');
                     }
-                }
+                }*/
             }
         </script>
 
