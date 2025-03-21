@@ -5,6 +5,12 @@ const cors = require('cors');
 const app = express();
 const port = 3500;
 
+// Enable CORS for all routes
+app.use(cors());
+
+// Middleware to parse JSON
+app.use(bodyParser.json());
+
 // Create MySQL connection
 const con = mysql.createConnection({
     host: 'localhost',
@@ -20,9 +26,6 @@ con.connect(function(err) {
     }
     console.log('Connected to the MySQL server.');
 });
-
-// Middleware to parse JSON
-app.use(bodyParser.json());
 
 // Login endpoint
 app.post('/login', (req, res) => {
