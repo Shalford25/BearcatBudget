@@ -40,6 +40,7 @@ app.use(bodyParser.json());
 
 // Login endpoint
 app.post('/login', (req, res) => {
+    console.log(`Run attempt`);
     const { username, password } = req.body;
     const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
     con.query(sql, [username, password], (err, result) => {
