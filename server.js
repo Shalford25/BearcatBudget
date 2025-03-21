@@ -8,7 +8,7 @@ const port = 3500;
 // Enable CORS for all routes
 app.use(cors({
     origin: '*', // Allow all origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
+    methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Custom-Header'], // Allowed headers
     maxAge: 86400, // Cache preflight response for 24 hours
 }));
