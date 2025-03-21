@@ -29,6 +29,7 @@
                 }
                 try {
                     console.log('Sending fetch request...'); // Debugging log
+                    console.log('Request payload:', JSON.stringify({ username, password }));
 
                     const response = await fetch('http://localhost:3500/login', {
                         method: 'POST',
@@ -44,6 +45,9 @@
                         const errorDetails = await response.text();
                         throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
                     }
+
+                    const responseText = await response.text();
+                    console.log('Response text:', responseText);
 
                     const result = await response.json();
                     console.log('Result:', result); // Debugging log

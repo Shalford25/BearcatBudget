@@ -24,12 +24,12 @@ app.use((req, res, next) => {
 
 // Create a MySQL connection pool
 const pool = mysql.createPool({
-    connectionLimit: 10, // Maximum number of connections in the pool
-    host: 'localhost',
+    connectionLimit: 10,
+    host: '127.0.0.1', // Use IPv4 explicitly
     user: 'root',
     password: 'yeet',
     database: 'bearcatbudget',
-    port: 3306
+    port: 3306, // Ensure this matches your MySQL server's port
 });
 
 pool.on('error', (err) => {
@@ -61,6 +61,9 @@ app.post('/login', (req, res) => {
     }
 
     const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
+
+    console.log('Executing query:', sql); // Debugging log
+    console.log('Query parameters:', [username, password]); // Debugging log
 
     pool.query(sql, [username, password], (err, result) => {
         if (err) {
