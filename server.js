@@ -5,7 +5,15 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
+// Enable CORS for all routes
 app.use(cors());
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Allow specific HTTP methods
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
+    next();
+});
 
 // Create MySQL connection
 const con = mysql.createConnection({
@@ -17,10 +25,10 @@ const con = mysql.createConnection({
 
 // Connect to MySQL
 con.connect(function(err) {
-if (err) {
-   return console.error('error: ' + err.message);
-}  
-   console.log('Connected to the MySQL server.');
+    if (err) {
+        return console.error('Error: ' + err.message);
+    }
+    console.log('Connected to the MySQL server.');
 });
 
 // Middleware to parse JSON
