@@ -69,6 +69,8 @@ handleDisconnect();
 
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
+    console.log('Received POST request to /login'); // Debugging log
+    console.log('Request body:', req.body); // Debugging log
     try {
         console.log('Received POST request to /login'); // Debugging log
         console.log('Request body:', req.body); // Debugging log
