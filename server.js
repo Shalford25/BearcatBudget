@@ -3,21 +3,7 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-const port = 3306;
-
-// Enable CORS for all routes
-app.use(cors({
-    origin: '*', // Allow all origins
-    methods: ['GET', 'POST'], // Specify allowed HTTP methods
-    allowedHeaders: ['Content-Type', 'Authorization'] // Specify allowed headers
-}));
-
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Allow specific HTTP methods
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
-    next();
-});
+const port = 3500;
 
 // Create MySQL connection
 const con = mysql.createConnection({

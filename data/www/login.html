@@ -19,7 +19,7 @@
                 const password = document.getElementById('pwd').value;
 
                 try {
-                    const response = await fetch('http://localhost:3306/login', {
+                    const response = await fetch('http://localhost:3500/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
