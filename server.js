@@ -56,6 +56,7 @@ app.post('/login', (req, res) => {
             res.status(500).send({
                 success: false,
                 message: 'An error occurred while querying the database.',
+                error: err, // Include the error details for debugging
             });
             return;
         }
