@@ -7,13 +7,27 @@ const port = 3500;
 
 // Enable CORS for all routes
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: 'localhost', // Allow only this origin
+    methods: ['GET', 'POST', 'OPTIONS'], // Allow specific HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
 }));
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
+
+// Add custom headers
+app.use((req, res, next) => {
+    res.setHeader('X-Powered-By', 'BearcatBudget');
+    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Replace with your frontend origin
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+});
 
 // Create MySQL connection
 const con = mysql.createConnection({
@@ -34,9 +48,10 @@ con.connect(function(err) {
 // Handle preflight requests
 app.options('*', (req, res) => {
     console.log(`Handling preflight request`);
-    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+    res.header('Access-Control-Allow-Origin', req.headers.origin); // Echo the origin
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specific methods
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specific headers
+    res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']); // Allow requested headers
+    res.header('Access-Control-Max-Age', '86400'); // Cache preflight response for 24 hours
     res.sendStatus(200); // Respond with HTTP 200 for preflight
 });
 

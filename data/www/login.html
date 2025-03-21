@@ -18,18 +18,28 @@
                 const username = document.getElementById('userName').value;
                 const password = document.getElementById('pwd').value;
 
+                if (!username || !password) {
+                    alert('Please enter both username and password.');
+                    return;
+                }
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 5-second timeout
+
                 try {
                     const response = await fetch('http://localhost:3500/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ username, password })
+                        body: JSON.stringify({ username, password }),
+                        signal: controller.signal
                     });
 
-                    // Check if the response is not OK (status code outside 200-299)
+                    clearTimeout(timeoutId);
+
                     if (!response.ok) {
-                        const errorDetails = await response.text(); // Attempt to read the response body
+                        const errorDetails = await response.text();
                         throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
                     }
 
@@ -40,14 +50,15 @@
                         alert(result.message);
                     }
                 } catch (error) {
-                    // Log detailed error information to the console
-                    console.error('Fetch error details:', {
-                        message: error.message,
-                        stack: error.stack,
-                    });
-
-                    // Display a user-friendly error message
-                    alert('Failed to connect to the server. Please try again later.');
+                    if (error.name === 'AbortError') {
+                        alert('Request timed out. Please try again.');
+                    } else {
+                        console.error('Fetch error details:', {
+                            message: error.message,
+                            stack: error.stack,
+                        });
+                        alert('Failed to connect to the server. Please try again later.');
+                    }
                 }
             }
         </script>
