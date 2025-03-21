@@ -1,1 +1,0 @@
-//This is for server side code.
