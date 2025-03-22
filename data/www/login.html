@@ -27,9 +27,7 @@
                     return;
                 }
                 try {
-                    let req = await ('http://localhost:3500/test');
-                    req.then(response => console.log(response));
-                    
+
                     console.log('Sending fetch request...'); // Debugging log
                     console.log('Request payload:', JSON.stringify({ username, password }));
 
@@ -64,6 +62,28 @@
                     } else {
                         alert('Failed to connect to the server. Please try again later.');
                     }
+                }
+            }
+
+            async function testFetch() {
+                try {
+                    const response = await fetch('http://localhost:3500/test', {
+                        method: 'GET',
+                    });
+
+                    if (!response.ok) {
+                        const errorDetails = await response.text(); // Parse the error response as plain text
+                        console.error(`Error: ${response.status} - ${errorDetails}`);
+                        alert(`Error: ${response.status} - ${errorDetails}`);
+                        return;
+                    }
+
+                    const result = await response.text(); // Parse the successful response as plain text
+                    console.log('Response from /test:', result);
+                    alert(`Response from /test: ${result}`);
+                } catch (error) {
+                    console.error('Error caught:', error);
+                    alert('Failed to connect to the server. Please try again later.');
                 }
             }
         </script>
