@@ -6,7 +6,9 @@ const app = express();
 const port = 3500;
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+    origin: '*'
+}));
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
@@ -67,6 +69,11 @@ function handleDisconnect() {
 }
 handleDisconnect();
 
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/`);
+});
+
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
     try {
@@ -115,9 +122,4 @@ app.post('/login', (req, res) => {
             debug: error.message, // Include debug info
         });
     }
-});
-
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
 });
