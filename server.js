@@ -123,7 +123,3 @@ app.post('/login', (req, res) => {
         });
     }
 });
-app.get("/test", (req, res) => {
-    console.log('Received GET request to /test');
-    res.send('Test endpoint is working!');
-  })
