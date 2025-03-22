@@ -87,7 +87,6 @@ app.post('/login', (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'Username and password are required.',
-                debug: 'Missing username or password', // Include debug info
             });
         }
 
@@ -101,16 +100,17 @@ app.post('/login', (req, res) => {
                 console.error('Database query error:', err); // Debugging log
                 return res.status(500).json({
                     success: false,
-                    message: 'An error occurred while querying the database.',
-                    debug: err.message, // Include debug info
+                    message: 'Failed to connect to the server. Please try again later.',
                 });
             }
 
             console.log('Query result:', result); // Debugging log
 
             if (result.length > 0) {
+                // User found
                 res.json({ success: true, message: 'Login successful!' });
             } else {
+                // No matching user found
                 res.status(401).json({ success: false, message: 'Invalid username or password.' });
             }
         });
@@ -118,8 +118,7 @@ app.post('/login', (req, res) => {
         console.error('Unexpected error in /login route:', error); // Debugging log
         res.status(500).json({
             success: false,
-            message: 'An unexpected error occurred.',
-            debug: error.message, // Include debug info
+            message: 'An unexpected error occurred. Please try again later.',
         });
     }
 });
