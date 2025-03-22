@@ -123,3 +123,6 @@ app.post('/login', (req, res) => {
         });
     }
 });
+app.get("/test", (req, res) => {
+    res.send("Hello");
+  })
