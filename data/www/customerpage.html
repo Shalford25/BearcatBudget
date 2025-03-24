@@ -38,6 +38,21 @@
                     window.location.href = 'login.html';
                 }
             });
+
+            async function loadNavbar() {
+                try {
+                    const response = await fetch('navbar.html'); // Ensure the path is correct
+                    if (!response.ok) {
+                        throw new Error(`Failed to load navbar: ${response.statusText}`);
+                    }
+                    const navbarHTML = await response.text();
+                    document.getElementById('navbar-container').innerHTML = navbarHTML;
+                } catch (error) {
+                    console.error('Error loading navbar:', error);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', loadNavbar);
         </script>
         <script src="../javascript/navbar.js"></script>
     </head>
