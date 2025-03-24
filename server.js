@@ -344,7 +344,10 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
 app.post('/api/deleteRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
+    console.log('Received request to delete row:', { table, row });
+
     if (!table || !row || !row.id) {
+        console.log('Missing table name or row ID');
         return res.status(400).json({
             success: false,
             message: 'Table name and row ID are required.',
@@ -360,6 +363,7 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
 
     const idColumn = tableIdColumns[table];
     if (!idColumn) {
+        console.log('Invalid table name:', table);
         return res.status(400).json({
             success: false,
             message: 'Invalid table name.',
@@ -376,6 +380,7 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
             });
         }
 
+        console.log('Row deleted successfully:', { table, id: row.id });
         res.json({ success: true, message: 'Row deleted successfully.' });
     });
 });
