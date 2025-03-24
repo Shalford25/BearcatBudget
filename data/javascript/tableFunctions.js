@@ -26,9 +26,17 @@ async function displayTable(tableName) {
             // Create table rows
             data.forEach(row => {
                 const tr = document.createElement('tr');
-                Object.values(row).forEach(value => {
+                Object.entries(row).forEach(([key, value]) => {
                     const td = document.createElement('td');
-                    td.innerText = value;
+
+                    // Format date columns
+                    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
+                        const date = new Date(value);
+                        td.innerText = isNaN(date.getTime()) ? value : date.toLocaleDateString(); // Format date
+                    } else {
+                        td.innerText = value;
+                    }
+
                     tr.appendChild(td);
                 });
 
@@ -87,8 +95,15 @@ async function addRowToTable(tableName) {
 
         const td = document.createElement('td');
         const input = document.createElement('input');
-        input.type = 'text';
-        input.placeholder = `Enter value for ${headers[i]}`;
+
+        // Use a date picker for date columns
+        if (headers[i].toLowerCase().includes('date') || headers[i].toLowerCase().includes('time')) {
+            input.type = 'date';
+        } else {
+            input.type = 'text';
+        }
+
+        input.placeholder = `${headers[i]}`;
         td.appendChild(input);
         newRow.appendChild(td);
     }
