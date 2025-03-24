@@ -120,7 +120,7 @@ function checkPermissions(req, res, next) {
 }
 
 // Other routes (e.g., /login)
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -153,7 +153,7 @@ app.post('/login', (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Unexpected error in /login route:', error);
+        console.error('Unexpected error in /api/login route:', error);
         res.status(500).json({
             success: false,
             message: 'An unexpected error occurred. Please try again later.',
@@ -161,7 +161,7 @@ app.post('/login', (req, res) => {
     }
 });
 
-app.post('/logout', (req, res) => {
+app.post('/api/logout', (req, res) => {
     const { username, sessionId } = req.body;
 
     if (!username || !sessionId) {
@@ -183,10 +183,10 @@ app.post('/logout', (req, res) => {
     }
 });
 
-app.get('/isLoggedIn', (req, res) => {
+app.get('/api/isLoggedIn', (req, res) => {
     const { username, sessionId } = req.query;
 
-    console.log('Received /isLoggedIn request:', { username, sessionId }); // Debugging log
+    console.log('Received /api/isLoggedIn request:', { username, sessionId }); // Debugging log
 
     if (!username || !sessionId) {
         console.log('Missing username or sessionId'); // Debugging log
@@ -209,7 +209,7 @@ app.get('/isLoggedIn', (req, res) => {
     }
 });
 
-app.get('/getTableData', (req, res) => {
+app.get('/api/getTableData', (req, res) => {
     const { table } = req.query;
 
     if (!table) {

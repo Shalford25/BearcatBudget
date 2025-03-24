@@ -18,9 +18,9 @@
                 }
 
                 try {
-                    const response = await fetch(`/isLoggedIn?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
+                    const response = await fetch(`/api/isLoggedIn?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
                     const rawResponse = await response.text(); // Get raw response text
-                    console.log('Raw response from /isLoggedIn:', rawResponse); // Debugging log
+                    console.log('Raw response from /api/isLoggedIn:', rawResponse); // Debugging log
 
                     const result = JSON.parse(rawResponse); // Parse JSON only if valid
                     console.log('Parsed result:', result); // Debugging log
