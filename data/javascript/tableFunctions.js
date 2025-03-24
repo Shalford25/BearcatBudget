@@ -157,13 +157,36 @@ async function editRow(row, tableName) {
             return;
         }
 
+        // Extract the correct ID field based on the table name
+        const idField = {
+            service: 'service_id',
+            transaction: 'transaction_id',
+            inventory: 'inventory_id',
+        }[tableName];
+
+        if (!idField || !row[idField]) {
+            alert('Invalid row or table name.');
+            console.error('Invalid row or table name:', { row, tableName });
+            return;
+        }
+
         try {
+            console.log('Sending edit request:', {
+                table: tableName,
+                row: { ...JSON.parse(updatedRow), id: row[idField] },
+            });
+
             const response = await fetch('/api/editRow', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ table: tableName, row: JSON.parse(updatedRow), username, sessionId }),
+                body: JSON.stringify({
+                    table: tableName,
+                    row: { ...JSON.parse(updatedRow), id: row[idField] },
+                    username,
+                    sessionId,
+                }),
             });
             const result = await response.json();
             if (result.success) {
