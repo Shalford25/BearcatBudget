@@ -113,7 +113,7 @@ function checkPermissions(req, res, next) {
     }
 
     // Check permission level
-    const sql = `SELECT permissions FROM accounts WHERE username = ?`;
+    const sql = `SELECT permission FROM accounts WHERE username = ?`;
     pool.query(sql, [username], (err, results) => {
         if (err) {
             console.error('Database query error:', err);
@@ -125,7 +125,7 @@ function checkPermissions(req, res, next) {
 
         console.log('Permission query results:', results);
 
-        if (results.length > 0 && results[0].permissions === 1) {
+        if (results.length > 0 && results[0].permission === 1) {
             console.log('User has permission:', username);
             next(); // User has permission, proceed to the next middleware
         } else {
