@@ -242,44 +242,8 @@ app.get('/api/getTableData', (req, res) => {
     });
 });
 
-// Route to edit a row
-app.post('/editRow', checkPermissions, (req, res) => {
-    const { table, row } = req.body;
-
-    const sql = `UPDATE ?? SET ? WHERE id = ?`; // Assuming each table has a unique `id` column
-    pool.query(sql, [table, row, row.id], (err) => {
-        if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to update row.',
-            });
-        }
-
-        res.json({ success: true, message: 'Row updated successfully.' });
-    });
-});
-
-// Route to delete a row
-app.post('/deleteRow', checkPermissions, (req, res) => {
-    const { table, row } = req.body;
-
-    const sql = `DELETE FROM ?? WHERE id = ?`; // Assuming each table has a unique `id` column
-    pool.query(sql, [table, row.id], (err) => {
-        if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({
-                success: false,
-                message: 'Failed to delete row.',
-            });
-        }
-
-        res.json({ success: true, message: 'Row deleted successfully.' });
-    });
-});
-
 // Route to add a new row
-app.post('/addRow', checkPermissions, (req, res) => {
+app.post('/api/addRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
     if (!table || !row) {
@@ -314,5 +278,41 @@ app.post('/addRow', checkPermissions, (req, res) => {
         }
 
         res.json({ success: true, message: 'Row added successfully!' });
+    });
+});
+
+// Route to edit a row
+app.post('/api/editRow', checkPermissions, (req, res) => {
+    const { table, row } = req.body;
+
+    const sql = `UPDATE ?? SET ? WHERE id = ?`; // Assuming each table has a unique `id` column
+    pool.query(sql, [table, row, row.id], (err) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to update row.',
+            });
+        }
+
+        res.json({ success: true, message: 'Row updated successfully.' });
+    });
+});
+
+// Route to delete a row
+app.post('/api/deleteRow', checkPermissions, (req, res) => {
+    const { table, row } = req.body;
+
+    const sql = `DELETE FROM ?? WHERE id = ?`; // Assuming each table has a unique `id` column
+    pool.query(sql, [table, row.id], (err) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to delete row.',
+            });
+        }
+
+        res.json({ success: true, message: 'Row deleted successfully.' });
     });
 });
