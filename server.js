@@ -201,6 +201,7 @@ app.get('/isLoggedIn', (req, res) => {
 
     if (session && session.sessionId === sessionId) {
         console.log('Session is valid'); // Debugging log
+        res.setHeader('Content-Type', 'application/json');
         res.json({ success: true, isLoggedIn: true, loginTime: session.loginTime });
     } else {
         console.log('Session is invalid or expired'); // Debugging log
