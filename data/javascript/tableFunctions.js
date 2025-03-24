@@ -154,33 +154,63 @@ async function addRowToTable(tableName) {
 
 // Function to edit a row
 async function editRow(row, tableName) {
-    const username = localStorage.getItem('username');
-    const sessionId = localStorage.getItem('sessionId');
-
-    if (!username || !sessionId) {
-        alert('You are not logged in.');
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // Extract the correct ID field based on the table name
+    const table = document.getElementById('dataTable');
     const idField = {
         service: 'service_id',
         transaction: 'transaction_id',
         inventory: 'inventory_id',
     }[tableName];
 
-    const editableRow = { ...row };
-    delete editableRow[idField]; // Exclude the "id" field from being edited
+    const rowId = row[idField]; // Get the ID of the row being edited
+    const rowElement = Array.from(table.rows).find(tr => {
+        const firstCell = tr.cells[0];
+        return firstCell && firstCell.innerText == rowId; // Match the row by ID
+    });
 
-    const updatedRow = prompt('Edit row data (JSON format):', JSON.stringify(editableRow));
-    if (updatedRow) {
+    if (!rowElement) {
+        alert('Row not found in the table.');
+        return;
+    }
+
+    // Replace cells with input fields
+    const originalValues = {};
+    for (let i = 0; i < rowElement.cells.length - 1; i++) { // Exclude the "Actions" column
+        const cell = rowElement.cells[i];
+        const columnName = table.rows[0].cells[i].innerText; // Get column name from header
+        originalValues[columnName] = cell.innerText;
+
+        if (columnName !== idField) { // Skip the ID column
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = cell.innerText;
+            input.dataset.column = columnName; // Store the column name for later
+            cell.innerHTML = '';
+            cell.appendChild(input);
+        }
+    }
+
+    // Replace the "Actions" column with Confirm and Cancel buttons
+    const actionsCell = rowElement.cells[rowElement.cells.length - 1];
+    const confirmButton = document.createElement('button');
+    confirmButton.innerText = 'Confirm';
+    confirmButton.onclick = async () => {
+        const inputs = rowElement.querySelectorAll('input');
+        const updatedRow = { [idField]: rowId }; // Include the ID in the updated data
+
+        inputs.forEach(input => {
+            updatedRow[input.dataset.column] = input.value;
+        });
+
+        const username = localStorage.getItem('username');
+        const sessionId = localStorage.getItem('sessionId');
+
+        if (!username || !sessionId) {
+            alert('You are not logged in.');
+            window.location.href = 'login.html';
+            return;
+        }
+
         try {
-            console.log('Sending edit request:', {
-                table: tableName,
-                row: { ...JSON.parse(updatedRow), id: row[idField] },
-            });
-
             const response = await fetch('/api/editRow', {
                 method: 'POST',
                 headers: {
@@ -188,7 +218,7 @@ async function editRow(row, tableName) {
                 },
                 body: JSON.stringify({
                     table: tableName,
-                    row: { ...JSON.parse(updatedRow), id: row[idField] },
+                    row: updatedRow,
                     username,
                     sessionId,
                 }),
@@ -206,7 +236,33 @@ async function editRow(row, tableName) {
             console.error('Error updating row:', error);
             alert('An error occurred while updating the row.');
         }
-    }
+    };
+
+    const cancelButton = document.createElement('button');
+    cancelButton.innerText = 'Cancel';
+    cancelButton.onclick = () => {
+        // Restore original values
+        for (let i = 0; i < rowElement.cells.length - 1; i++) {
+            const cell = rowElement.cells[i];
+            const columnName = table.rows[0].cells[i].innerText;
+            cell.innerHTML = originalValues[columnName];
+        }
+
+        // Restore original "Actions" buttons
+        actionsCell.innerHTML = '';
+        const editButton = document.createElement('button');
+        editButton.innerText = 'Edit';
+        editButton.onclick = () => editRow(row, tableName);
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Delete';
+        deleteButton.onclick = () => deleteRow(row, tableName);
+        actionsCell.appendChild(editButton);
+        actionsCell.appendChild(deleteButton);
+    };
+
+    actionsCell.innerHTML = '';
+    actionsCell.appendChild(confirmButton);
+    actionsCell.appendChild(cancelButton);
 }
 
 // Function to delete a row
