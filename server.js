@@ -282,16 +282,37 @@ app.post('/deleteRow', checkPermissions, (req, res) => {
 app.post('/addRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
-    const sql = `INSERT INTO ?? SET ?`;
-    pool.query(sql, [table, row], (err) => {
+    if (!table || !row) {
+        return res.status(400).json({
+            success: false,
+            message: 'Table name and row data are required.',
+        });
+    }
+
+    // Validate table name to prevent SQL injection
+    const allowedTables = ['service', 'transaction', 'inventory'];
+    if (!allowedTables.includes(table)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid table name.',
+        });
+    }
+
+    // Insert the row into the database
+    const columns = Object.keys(row).join(', ');
+    const values = Object.values(row);
+    const placeholders = values.map(() => '?').join(', ');
+
+    const sql = `INSERT INTO ?? (${columns}) VALUES (${placeholders})`;
+    pool.query(sql, [table, ...values], (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to add row.',
+                message: 'Failed to add row to the database.',
             });
         }
 
-        res.json({ success: true, message: 'Row added successfully.' });
+        res.json({ success: true, message: 'Row added successfully!' });
     });
 });

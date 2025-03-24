@@ -127,20 +127,59 @@
 
             // Function to add a new row
             async function addRowToTable(tableName) {
-                const newRow = prompt('Enter new row data (JSON format):');
-                if (newRow) {
+                const table = document.getElementById('dataTable');
+
+                // Create a new row
+                const newRow = document.createElement('tr');
+
+                // Add input fields for each column
+                const columnCount = table.rows[0].cells.length - 1; // Exclude the "Actions" column
+                for (let i = 0; i < columnCount; i++) {
+                    const td = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.placeholder = `Enter value for column ${i + 1}`;
+                    td.appendChild(input);
+                    newRow.appendChild(td);
+                }
+
+                // Add "Confirm" and "Cancel" buttons
+                const actionTd = document.createElement('td');
+                const confirmButton = document.createElement('button');
+                confirmButton.innerText = 'Confirm';
+                confirmButton.onclick = async () => {
+                    const inputs = newRow.querySelectorAll('input');
+                    const rowData = {};
+                    const headers = Array.from(table.rows[0].cells).slice(0, columnCount).map(cell => cell.innerText);
+
+                    // Collect data from input fields
+                    inputs.forEach((input, index) => {
+                        rowData[headers[index]] = input.value;
+                    });
+
+                    const username = localStorage.getItem('username');
+                    const sessionId = localStorage.getItem('sessionId');
+
+                    if (!username || !sessionId) {
+                        alert('You are not logged in.');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
                     try {
                         const response = await fetch(`/addRow`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ table: tableName, row: JSON.parse(newRow) }),
+                            body: JSON.stringify({ table: tableName, row: rowData, username, sessionId }),
                         });
                         const result = await response.json();
                         if (result.success) {
                             alert('Row added successfully!');
-                            displayTable(tableName);
+                            displayTable(tableName); // Refresh the table
+                        } else if (response.status === 403) {
+                            alert('You do not have permission to add rows.');
                         } else {
                             alert(result.message || 'Failed to add row.');
                         }
@@ -148,7 +187,20 @@
                         console.error('Error adding row:', error);
                         alert('An error occurred while adding the row.');
                     }
-                }
+                };
+
+                const cancelButton = document.createElement('button');
+                cancelButton.innerText = 'Cancel';
+                cancelButton.onclick = () => {
+                    newRow.remove(); // Remove the row if the user cancels
+                };
+
+                actionTd.appendChild(confirmButton);
+                actionTd.appendChild(cancelButton);
+                newRow.appendChild(actionTd);
+
+                // Append the new row to the table
+                table.appendChild(newRow);
             }
 
             // Event listener for tab selection
@@ -220,7 +272,13 @@
 
         <!-- Table -->
         <table id="dataTable" border="1">
-            <!-- Table data will be dynamically inserted here -->
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+                <th>Column 3</th>
+                <th>Actions</th>
+            </tr>
+            <!-- Existing rows will be dynamically inserted here -->
         </table>
     </body>
 </html>
