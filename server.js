@@ -393,21 +393,41 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
         }
 
         // Re-sequence the IDs
-        const resequenceSql = `
-            SET @row_number = 0;
-            UPDATE ?? SET ?? = (@row_number := @row_number + 1);
-            ALTER TABLE ?? AUTO_INCREMENT = 1;
-        `;
-        pool.query(resequenceSql, [table, idColumn, table], (err, result) => {
+        const setRowNumberSql = `SET @row_number = 0`;
+        const updateIdsSql = `UPDATE ?? SET ?? = (@row_number := @row_number + 1)`;
+        const resetAutoIncrementSql = `ALTER TABLE ?? AUTO_INCREMENT = 1`;
+
+        // Execute the queries sequentially
+        pool.query(setRowNumberSql, (err) => {
             if (err) {
-                console.error('Error re-sequencing IDs:', err);
+                console.error('Error resetting row number:', err);
                 return res.status(500).json({
                     success: false,
-                    message: 'Failed to re-sequence IDs.',
+                    message: 'Failed to reset row number.',
                 });
             }
 
-            res.json({ success: true, message: 'Row deleted and IDs re-sequenced successfully.' });
+            pool.query(updateIdsSql, [table, idColumn], (err) => {
+                if (err) {
+                    console.error('Error updating IDs:', err);
+                    return res.status(500).json({
+                        success: false,
+                        message: 'Failed to update IDs.',
+                    });
+                }
+
+                pool.query(resetAutoIncrementSql, [table], (err) => {
+                    if (err) {
+                        console.error('Error resetting AUTO_INCREMENT:', err);
+                        return res.status(500).json({
+                            success: false,
+                            message: 'Failed to reset AUTO_INCREMENT.',
+                        });
+                    }
+
+                    res.json({ success: true, message: 'Row deleted and IDs re-sequenced successfully.' });
+                });
+            });
         });
     });
 });
