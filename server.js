@@ -143,7 +143,7 @@ app.post('/login', (req, res) => {
             }
 
             if (result.length > 0) {
-                const sessionId = crypto.randomUUID();
+                const sessionId = crypto.randomBytes(16).toString('hex');
                 loggedInAccounts[username] = { sessionId, loginTime: new Date() };
 
                 console.log(`User ${username} logged in with session ID: ${sessionId}`);
