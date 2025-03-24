@@ -394,12 +394,15 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
 
         console.log(`Row deleted from table ${table} with ID ${row.id}`);
 
-        // Re-sequence the IDs
+        // Re-sequence the IDs using a subquery
         const resequenceSql = `
-            SET @row_number = 0;
+            WITH RESEQUENCED AS (
+                SELECT ${idColumn}, ROW_NUMBER() OVER (ORDER BY ${idColumn}) AS new_id
+                FROM ${table}
+            )
             UPDATE ${table}
-            SET ${idColumn} = (@row_number := @row_number + 1)
-            ORDER BY ${idColumn};
+            JOIN RESEQUENCED ON ${table}.${idColumn} = RESEQUENCED.${idColumn}
+            SET ${table}.${idColumn} = RESEQUENCED.new_id;
         `;
         const resetAutoIncrementSql = `ALTER TABLE ${table} AUTO_INCREMENT = 1`;
 
