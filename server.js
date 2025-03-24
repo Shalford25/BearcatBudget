@@ -82,7 +82,10 @@ const loggedInAccounts = {};
 function checkPermissions(req, res, next) {
     const { username, sessionId } = req.body;
 
+    console.log('Checking permissions for:', { username, sessionId });
+
     if (!username || !sessionId) {
+        console.log('Missing username or sessionId');
         return res.status(401).json({
             success: false,
             message: 'You must be logged in to perform this action.',
@@ -91,6 +94,7 @@ function checkPermissions(req, res, next) {
 
     const session = loggedInAccounts[username];
     if (!session || session.sessionId !== sessionId) {
+        console.log('Invalid session for user:', username);
         return res.status(403).json({
             success: false,
             message: 'Invalid session. Please log in again.',
@@ -108,9 +112,13 @@ function checkPermissions(req, res, next) {
             });
         }
 
+        console.log('Permission query results:', results);
+
         if (results.length > 0 && results[0].permissions === 1) {
+            console.log('User has permission:', username);
             next(); // User has permission, proceed to the next middleware
         } else {
+            console.log('User does not have permission:', username);
             res.status(403).json({
                 success: false,
                 message: 'You do not have permission to perform this action.',
