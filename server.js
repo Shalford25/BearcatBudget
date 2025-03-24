@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const crypto = require('crypto'); // For generating unique session IDs
 const app = express();
 const port = 3500;
 
@@ -74,16 +75,56 @@ app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
 
+// Global object to track logged-in accounts
+const loggedInAccounts = {};
+
+// Middleware to check if the user is logged in and has permission level 1
+function checkPermissions(req, res, next) {
+    const { username, sessionId } = req.body;
+
+    if (!username || !sessionId) {
+        return res.status(401).json({
+            success: false,
+            message: 'You must be logged in to perform this action.',
+        });
+    }
+
+    const session = loggedInAccounts[username];
+    if (!session || session.sessionId !== sessionId) {
+        return res.status(403).json({
+            success: false,
+            message: 'Invalid session. Please log in again.',
+        });
+    }
+
+    // Check permission level
+    const sql = `SELECT permissions FROM accounts WHERE username = ?`;
+    pool.query(sql, [username], (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to verify permissions.',
+            });
+        }
+
+        if (results.length > 0 && results[0].permissions === 1) {
+            next(); // User has permission, proceed to the next middleware
+        } else {
+            res.status(403).json({
+                success: false,
+                message: 'You do not have permission to perform this action.',
+            });
+        }
+    });
+}
+
 // Other routes (e.g., /login)
 app.post('/login', (req, res) => {
     try {
-        console.log('Received POST request to /login'); // Debugging log
-        console.log('Request body:', req.body); // Debugging log
-
         const { username, password } = req.body;
 
         if (!username || !password) {
-            console.error('Missing username or password'); // Debugging log
             return res.status(400).json({
                 success: false,
                 message: 'Username and password are required.',
@@ -92,33 +133,161 @@ app.post('/login', (req, res) => {
 
         const sql = `SELECT * FROM accounts WHERE username = ? AND password = ?`;
 
-        console.log('Executing query:', sql); // Debugging log
-        console.log('Query parameters:', [username, password]); // Debugging log
-
         pool.query(sql, [username, password], (err, result) => {
             if (err) {
-                console.error('Database query error:', err); // Debugging log
+                console.error('Database query error:', err);
                 return res.status(500).json({
                     success: false,
                     message: 'Failed to connect to the server. Please try again later.',
                 });
             }
 
-            console.log('Query result:', result); // Debugging log
-
             if (result.length > 0) {
-                // User found
-                res.json({ success: true, message: 'Login successful!' });
+                // Generate a unique session ID
+                const sessionId = crypto.randomUUID();
+
+                // Store session details in the global object
+                loggedInAccounts[username] = { sessionId, loginTime: new Date() };
+
+                console.log(`User ${username} is now logged in with session ID: ${sessionId}`);
+
+                res.json({ success: true, message: 'Login successful!', sessionId });
             } else {
-                // No matching user found
                 res.status(401).json({ success: false, message: 'Invalid username or password.' });
             }
         });
     } catch (error) {
-        console.error('Unexpected error in /login route:', error); // Debugging log
+        console.error('Unexpected error in /login route:', error);
         res.status(500).json({
             success: false,
             message: 'An unexpected error occurred. Please try again later.',
         });
     }
+});
+
+app.post('/logout', (req, res) => {
+    const { username, sessionId } = req.body;
+
+    if (!username || !sessionId) {
+        return res.status(400).json({
+            success: false,
+            message: 'Username and session ID are required to log out.',
+        });
+    }
+
+    if (loggedInAccounts[username] && loggedInAccounts[username].sessionId === sessionId) {
+        delete loggedInAccounts[username];
+        console.log(`User ${username} has logged out.`);
+        res.json({ success: true, message: 'Logout successful!' });
+    } else {
+        res.status(400).json({
+            success: false,
+            message: 'Invalid session or user is not logged in.',
+        });
+    }
+});
+
+app.get('/isLoggedIn', (req, res) => {
+    const { username, sessionId } = req.query;
+
+    if (!username || !sessionId) {
+        return res.status(400).json({
+            success: false,
+            message: 'Username and session ID are required to check login status.',
+        });
+    }
+
+    const session = loggedInAccounts[username];
+    if (session && session.sessionId === sessionId) {
+        res.json({ success: true, isLoggedIn: true, loginTime: session.loginTime });
+    } else {
+        res.json({ success: true, isLoggedIn: false });
+    }
+});
+
+app.get('/getTableData', (req, res) => {
+    const { table } = req.query;
+
+    if (!table) {
+        return res.status(400).json({
+            success: false,
+            message: 'Table name is required.',
+        });
+    }
+
+    // Validate table name to prevent SQL injection
+    const allowedTables = ['service', 'transaction', 'inventory'];
+    if (!allowedTables.includes(table)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid table name.',
+        });
+    }
+
+    const sql = `SELECT * FROM ??`; // Use parameterized query to prevent SQL injection
+    pool.query(sql, [table], (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch table data.',
+            });
+        }
+
+        res.json(results);
+    });
+});
+
+// Route to edit a row
+app.post('/editRow', checkPermissions, (req, res) => {
+    const { table, row } = req.body;
+
+    const sql = `UPDATE ?? SET ? WHERE id = ?`; // Assuming each table has a unique `id` column
+    pool.query(sql, [table, row, row.id], (err) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to update row.',
+            });
+        }
+
+        res.json({ success: true, message: 'Row updated successfully.' });
+    });
+});
+
+// Route to delete a row
+app.post('/deleteRow', checkPermissions, (req, res) => {
+    const { table, row } = req.body;
+
+    const sql = `DELETE FROM ?? WHERE id = ?`; // Assuming each table has a unique `id` column
+    pool.query(sql, [table, row.id], (err) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to delete row.',
+            });
+        }
+
+        res.json({ success: true, message: 'Row deleted successfully.' });
+    });
+});
+
+// Route to add a new row
+app.post('/addRow', checkPermissions, (req, res) => {
+    const { table, row } = req.body;
+
+    const sql = `INSERT INTO ?? SET ?`;
+    pool.query(sql, [table, row], (err) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to add row.',
+            });
+        }
+
+        res.json({ success: true, message: 'Row added successfully.' });
+    });
 });

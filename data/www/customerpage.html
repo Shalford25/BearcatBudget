@@ -5,7 +5,34 @@
         <title>Customer Page | Bearcat Budget</title>
         <link rel="stylesheet" href="../stylesheets/customerpage.css" type="text/css"/>
         <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                const username = localStorage.getItem('username');
+                const sessionId = localStorage.getItem('sessionId');
 
+                if (!username || !sessionId) {
+                    alert('You are not logged in. Redirecting to login page.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/isLoggedIn?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
+                    const result = await response.json();
+
+                    if (result.success && result.isLoggedIn) {
+                        // Update the welcome message
+                        const welcomeMessage = document.querySelector('.accountBar h2');
+                        welcomeMessage.textContent = `Welcome, ${username}!`;
+                    } else {
+                        alert('Your session has expired. Redirecting to login page.');
+                        window.location.href = 'login.html';
+                    }
+                } catch (error) {
+                    console.error('Error validating session:', error);
+                    alert('Failed to validate session. Redirecting to login page.');
+                    window.location.href = 'login.html';
+                }
+            });
         </script>
     </head>
     <body>
@@ -22,7 +49,7 @@
 
         <div class="content">
             <div class="accountBar">
-                <h2>Welcome, Business Name!</h2>
+                <h2>Welcome, Username Here!</h2>
             </div>
             <div class="container">
                 <div>Box #1</div>

@@ -15,13 +15,8 @@
         <script src="../javascript/mySQLintegration.js"></script>
         <script>
             async function login() {
-                console.log('Login function triggered'); // Debugging log
-
                 const username = document.getElementById('userName').value;
                 const password = document.getElementById('pwd').value;
-
-                console.log('Username:', username); // Debugging log
-                console.log('Password:', password); // Debugging log
 
                 if (!username || !password) {
                     alert('Please enter both username and password.');
@@ -29,9 +24,6 @@
                 }
 
                 try {
-                    console.log('Sending fetch request...'); // Debugging log
-                    console.log('Request payload:', JSON.stringify({ username, password }));
-
                     const response = await fetch('/login', {
                         method: 'POST',
                         headers: {
@@ -40,38 +32,26 @@
                         body: JSON.stringify({ username, password }),
                     });
 
-                    console.log('Response received:', response); // Debugging log
-
                     if (!response.ok) {
-                        // Parse the error response from the server
                         const errorDetails = await response.json();
-                        console.error('Error response from server:', errorDetails); // Debugging log
-
-                        // Handle specific HTTP status codes
-                        if (response.status === 401) {
-                            alert(errorDetails.message); // Show "Invalid username or password"
-                        } else {
-                            alert(`Error: ${errorDetails.message || 'An unexpected error occurred.'}`);
-                        }
-                        return; // Exit the function after handling the error
+                        alert(errorDetails.message || 'An unexpected error occurred.');
+                        return;
                     }
 
-                    const result = await response.json(); // Parse the successful response as JSON
-                    console.log('Result:', result); // Debugging log
-
+                    const result = await response.json();
                     if (result.success) {
-                        alert(result.message); // Show success message
+                        alert(result.message);
+                        // Store sessionId and username in localStorage
+                        localStorage.setItem('sessionId', result.sessionId);
+                        localStorage.setItem('username', username);
+                        // Redirect to customerpage.html
+                        window.location.href = 'customerpage.html';
                     } else {
-                        alert(result.message); // Show failure message
+                        alert(result.message);
                     }
                 } catch (error) {
-                    console.error('Error caught:', error); // Debugging log
-
-                    if (error.name === 'AbortError') {
-                        alert('Request timed out. Please try again.');
-                    } else {
-                        alert('Failed to connect to the server. Please try again later.');
-                    }
+                    console.error('Error:', error);
+                    alert('Failed to connect to the server. Please try again later.');
                 }
             }
         </script>
