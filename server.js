@@ -395,34 +395,40 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
         console.log(`Row deleted from table ${table} with ID ${row.id}`);
 
         // Re-sequence the IDs
-        const updateIdsSql = `
-            SET @row_number = 0;
-            UPDATE ${table}
-            SET ${idColumn} = (@row_number := @row_number + 1)
-            ORDER BY ${idColumn};
-        `;
+        const setRowNumberSql = `SET @row_number = 0`;
+        const updateIdsSql = `UPDATE ${table} SET ${idColumn} = (@row_number := @row_number + 1) ORDER BY ${idColumn}`;
         const resetAutoIncrementSql = `ALTER TABLE ${table} AUTO_INCREMENT = 1`;
 
         // Execute the queries sequentially
-        pool.query(updateIdsSql, (err) => {
+        pool.query(setRowNumberSql, (err) => {
             if (err) {
-                console.error('Error updating IDs:', err);
+                console.error('Error resetting row number:', err);
                 return res.status(500).json({
                     success: false,
-                    message: 'Failed to update IDs.',
+                    message: 'Failed to reset row number.',
                 });
             }
 
-            pool.query(resetAutoIncrementSql, (err) => {
+            pool.query(updateIdsSql, (err) => {
                 if (err) {
-                    console.error('Error resetting AUTO_INCREMENT:', err);
+                    console.error('Error updating IDs:', err);
                     return res.status(500).json({
                         success: false,
-                        message: 'Failed to reset AUTO_INCREMENT.',
+                        message: 'Failed to update IDs.',
                     });
                 }
 
-                res.json({ success: true, message: 'Row deleted and IDs re-sequenced successfully.' });
+                pool.query(resetAutoIncrementSql, (err) => {
+                    if (err) {
+                        console.error('Error resetting AUTO_INCREMENT:', err);
+                        return res.status(500).json({
+                            success: false,
+                            message: 'Failed to reset AUTO_INCREMENT.',
+                        });
+                    }
+
+                    res.json({ success: true, message: 'Row deleted and IDs re-sequenced successfully.' });
+                });
             });
         });
     });
