@@ -247,8 +247,13 @@ app.get('/api/getTableData', (req, res) => {
         });
     }
 
-    const sql = `SELECT * FROM ??`; // Use parameterized query to prevent SQL injection
-    pool.query(sql, [table], (err, results) => {
+    const sql = `
+        SELECT service_id, service_name, service_description, service_price, service_duration, 
+               DATE_FORMAT(service_start, '%Y-%m-%d') AS service_start, 
+               DATE_FORMAT(service_update, '%Y-%m-%d') AS service_update 
+        FROM service
+    `;
+    pool.query(sql, (err, results) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
