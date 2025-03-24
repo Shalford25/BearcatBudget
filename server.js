@@ -93,8 +93,19 @@ function checkPermissions(req, res, next) {
     }
 
     const session = loggedInAccounts[username];
-    if (!session || session.sessionId !== sessionId) {
-        console.log('Invalid session for user:', username);
+    console.log('Session data for user:', session);
+
+    if (!session) {
+        console.log(`No session found for user: ${username}`);
+        return res.status(403).json({
+            success: false,
+            message: 'Invalid session. Please log in again.',
+        });
+    }
+
+    if (session.sessionId !== sessionId) {
+        console.log(`Session ID mismatch for user: ${username}`);
+        console.log(`Expected: ${session.sessionId}, Received: ${sessionId}`);
         return res.status(403).json({
             success: false,
             message: 'Invalid session. Please log in again.',
