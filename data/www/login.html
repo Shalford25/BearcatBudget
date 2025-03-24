@@ -44,11 +44,8 @@
                     console.log('Parsed result:', result);
 
                     if (result.success) {
-                        alert(result.message);
-                        // Store sessionId and username in localStorage
                         localStorage.setItem('sessionId', result.sessionId);
                         localStorage.setItem('username', username);
-                        // Redirect to customerpage.html
                         window.location.href = 'customerpage.html';
                     } else {
                         alert(result.message);

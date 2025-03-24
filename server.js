@@ -146,7 +146,7 @@ app.post('/login', (req, res) => {
                 const sessionId = crypto.randomBytes(16).toString('hex');
                 loggedInAccounts[username] = { sessionId, loginTime: new Date() };
 
-                console.log(`User ${username} logged in with session ID: ${sessionId}`);
+                console.log('Logged in user:', { username, sessionId }); // Debugging log
                 res.json({ success: true, message: 'Login successful!', sessionId });
             } else {
                 res.status(401).json({ success: false, message: 'Invalid username or password.' });
@@ -186,7 +186,10 @@ app.post('/logout', (req, res) => {
 app.get('/isLoggedIn', (req, res) => {
     const { username, sessionId } = req.query;
 
+    console.log('Received /isLoggedIn request:', { username, sessionId }); // Debugging log
+
     if (!username || !sessionId) {
+        console.log('Missing username or sessionId'); // Debugging log
         return res.status(400).json({
             success: false,
             message: 'Username and session ID are required to check login status.',
@@ -194,9 +197,13 @@ app.get('/isLoggedIn', (req, res) => {
     }
 
     const session = loggedInAccounts[username];
+    console.log('Session data for user:', session); // Debugging log
+
     if (session && session.sessionId === sessionId) {
+        console.log('Session is valid'); // Debugging log
         res.json({ success: true, isLoggedIn: true, loginTime: session.loginTime });
     } else {
+        console.log('Session is invalid or expired'); // Debugging log
         res.json({ success: true, isLoggedIn: false });
     }
 });

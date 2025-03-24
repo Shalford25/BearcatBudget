@@ -9,6 +9,8 @@
                 const username = localStorage.getItem('username');
                 const sessionId = localStorage.getItem('sessionId');
 
+                console.log('Loaded username and sessionId from localStorage:', { username, sessionId }); // Debugging log
+
                 if (!username || !sessionId) {
                     alert('You are not logged in. Redirecting to login page.');
                     window.location.href = 'login.html';
@@ -18,6 +20,8 @@
                 try {
                     const response = await fetch(`/isLoggedIn?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
                     const result = await response.json();
+
+                    console.log('Response from /isLoggedIn:', result); // Debugging log
 
                     if (result.success && result.isLoggedIn) {
                         // Update the welcome message
