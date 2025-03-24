@@ -281,6 +281,15 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
         });
     }
 
+    // Exclude the "id" field from the row data
+    const tableIdColumns = {
+        service: 'service_id',
+        transaction: 'transaction_id',
+        inventory: 'inventory_id',
+    };
+    const idColumn = tableIdColumns[table];
+    delete row[idColumn];
+
     // Insert the row into the database
     const columns = Object.keys(row).join(', ');
     const values = Object.values(row);
@@ -351,10 +360,7 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
 app.post('/api/deleteRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
-    console.log('Received request to delete row:', { table, row });
-
     if (!table || !row || !row.id) {
-        console.log('Missing table name or row ID');
         return res.status(400).json({
             success: false,
             message: 'Table name and row ID are required.',
@@ -370,15 +376,14 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
 
     const idColumn = tableIdColumns[table];
     if (!idColumn) {
-        console.log('Invalid table name:', table);
         return res.status(400).json({
             success: false,
             message: 'Invalid table name.',
         });
     }
 
-    const sql = `DELETE FROM ?? WHERE ?? = ?`;
-    pool.query(sql, [table, idColumn, row.id], (err, result) => {
+    const deleteSql = `DELETE FROM ?? WHERE ?? = ?`;
+    pool.query(deleteSql, [table, idColumn, row.id], (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
@@ -387,7 +392,22 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
             });
         }
 
-        console.log('Row deleted successfully:', { table, id: row.id });
-        res.json({ success: true, message: 'Row deleted successfully.' });
+        // Re-sequence the IDs
+        const resequenceSql = `
+            SET @row_number = 0;
+            UPDATE ?? SET ?? = (@row_number := @row_number + 1);
+            ALTER TABLE ?? AUTO_INCREMENT = 1;
+        `;
+        pool.query(resequenceSql, [table, idColumn, table], (err, result) => {
+            if (err) {
+                console.error('Error re-sequencing IDs:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Failed to re-sequence IDs.',
+                });
+            }
+
+            res.json({ success: true, message: 'Row deleted and IDs re-sequenced successfully.' });
+        });
     });
 });

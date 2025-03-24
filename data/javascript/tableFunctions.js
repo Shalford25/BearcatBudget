@@ -73,13 +73,22 @@ async function addRowToTable(tableName) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Add input fields for each column
-    const columnCount = table.rows[0].cells.length - 1; // Exclude the "Actions" column
+    // Exclude the "id" column from input fields
+    const headers = Array.from(table.rows[0].cells).map(cell => cell.innerText);
+    const columnCount = headers.length - 1; // Exclude the "Actions" column
+    const idField = {
+        service: 'service_id',
+        transaction: 'transaction_id',
+        inventory: 'inventory_id',
+    }[tableName];
+
     for (let i = 0; i < columnCount; i++) {
+        if (headers[i] === idField) continue; // Skip the "id" column
+
         const td = document.createElement('td');
         const input = document.createElement('input');
         input.type = 'text';
-        input.placeholder = `Enter value for column ${i + 1}`;
+        input.placeholder = `Enter value for ${headers[i]}`;
         td.appendChild(input);
         newRow.appendChild(td);
     }
@@ -91,7 +100,6 @@ async function addRowToTable(tableName) {
     confirmButton.onclick = async () => {
         const inputs = newRow.querySelectorAll('input');
         const rowData = {};
-        const headers = Array.from(table.rows[0].cells).slice(0, columnCount).map(cell => cell.innerText);
 
         // Collect data from input fields
         inputs.forEach((input, index) => {
@@ -146,30 +154,27 @@ async function addRowToTable(tableName) {
 
 // Function to edit a row
 async function editRow(row, tableName) {
-    const updatedRow = prompt('Edit row data (JSON format):', JSON.stringify(row));
+    const username = localStorage.getItem('username');
+    const sessionId = localStorage.getItem('sessionId');
+
+    if (!username || !sessionId) {
+        alert('You are not logged in.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Extract the correct ID field based on the table name
+    const idField = {
+        service: 'service_id',
+        transaction: 'transaction_id',
+        inventory: 'inventory_id',
+    }[tableName];
+
+    const editableRow = { ...row };
+    delete editableRow[idField]; // Exclude the "id" field from being edited
+
+    const updatedRow = prompt('Edit row data (JSON format):', JSON.stringify(editableRow));
     if (updatedRow) {
-        const username = localStorage.getItem('username');
-        const sessionId = localStorage.getItem('sessionId');
-
-        if (!username || !sessionId) {
-            alert('You are not logged in.');
-            window.location.href = 'login.html';
-            return;
-        }
-
-        // Extract the correct ID field based on the table name
-        const idField = {
-            service: 'service_id',
-            transaction: 'transaction_id',
-            inventory: 'inventory_id',
-        }[tableName];
-
-        if (!idField || !row[idField]) {
-            alert('Invalid row or table name.');
-            console.error('Invalid row or table name:', { row, tableName });
-            return;
-        }
-
         try {
             console.log('Sending edit request:', {
                 table: tableName,
