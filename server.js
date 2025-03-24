@@ -304,8 +304,30 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
 app.post('/api/editRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
-    const sql = `UPDATE ?? SET ? WHERE id = ?`; // Assuming each table has a unique `id` column
-    pool.query(sql, [table, row, row.id], (err) => {
+    if (!table || !row || !row.id) {
+        return res.status(400).json({
+            success: false,
+            message: 'Table name and row ID are required.',
+        });
+    }
+
+    // Map table names to their respective ID columns
+    const tableIdColumns = {
+        service: 'service_id',
+        transaction: 'transaction_id',
+        inventory: 'inventory_id',
+    };
+
+    const idColumn = tableIdColumns[table];
+    if (!idColumn) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid table name.',
+        });
+    }
+
+    const sql = `UPDATE ?? SET ? WHERE ?? = ?`;
+    pool.query(sql, [table, row, idColumn, row.id], (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
@@ -322,8 +344,30 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
 app.post('/api/deleteRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
-    const sql = `DELETE FROM ?? WHERE id = ?`; // Assuming each table has a unique `id` column
-    pool.query(sql, [table, row.id], (err) => {
+    if (!table || !row || !row.id) {
+        return res.status(400).json({
+            success: false,
+            message: 'Table name and row ID are required.',
+        });
+    }
+
+    // Map table names to their respective ID columns
+    const tableIdColumns = {
+        service: 'service_id',
+        transaction: 'transaction_id',
+        inventory: 'inventory_id',
+    };
+
+    const idColumn = tableIdColumns[table];
+    if (!idColumn) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid table name.',
+        });
+    }
+
+    const sql = `DELETE FROM ?? WHERE ?? = ?`;
+    pool.query(sql, [table, idColumn, row.id], (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
