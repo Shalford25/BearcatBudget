@@ -143,14 +143,10 @@ app.post('/login', (req, res) => {
             }
 
             if (result.length > 0) {
-                // Generate a unique session ID
                 const sessionId = crypto.randomUUID();
-
-                // Store session details in the global object
                 loggedInAccounts[username] = { sessionId, loginTime: new Date() };
 
-                console.log(`User ${username} is now logged in with session ID: ${sessionId}`);
-
+                console.log(`User ${username} logged in with session ID: ${sessionId}`);
                 res.json({ success: true, message: 'Login successful!', sessionId });
             } else {
                 res.status(401).json({ success: false, message: 'Invalid username or password.' });

@@ -32,13 +32,17 @@
                         body: JSON.stringify({ username, password }),
                     });
 
+                    const rawResponse = await response.text(); // Get raw response text
+                    console.log('Raw response:', rawResponse);
+
                     if (!response.ok) {
-                        const errorDetails = await response.json();
-                        alert(errorDetails.message || 'An unexpected error occurred.');
+                        alert(rawResponse); // Show raw response for debugging
                         return;
                     }
 
-                    const result = await response.json();
+                    const result = JSON.parse(rawResponse); // Parse JSON only if the response is valid
+                    console.log('Parsed result:', result);
+
                     if (result.success) {
                         alert(result.message);
                         // Store sessionId and username in localStorage
