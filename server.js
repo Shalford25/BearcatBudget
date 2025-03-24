@@ -396,7 +396,7 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
 
         // Re-sequence the IDs
         const setRowNumberSql = `SET @row_number = 0`;
-        const updateIdsSql = `UPDATE ${table} SET ${idColumn} = (@row_number := @row_number + 1)`;
+        const updateIdsSql = `UPDATE ${table} SET ${idColumn} = (@row_number := @row_number + 1) ORDER BY ${idColumn}`;
         const resetAutoIncrementSql = `ALTER TABLE ${table} AUTO_INCREMENT = 1`;
 
         // Execute the queries sequentially
