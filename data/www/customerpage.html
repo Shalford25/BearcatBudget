@@ -18,7 +18,7 @@
                 }
 
                 try {
-                    const response = await fetch(`/isLoggedIn?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
+                    const response = await fetch('/isLoggedIn');
                     const result = await response.json();
 
                     console.log('Response from /isLoggedIn:', result); // Debugging log
