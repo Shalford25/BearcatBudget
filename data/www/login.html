@@ -24,7 +24,7 @@
                 }
 
                 try {
-                    const response = await fetch('/login', {
+                    const response = await fetch('/api/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -32,16 +32,8 @@
                         body: JSON.stringify({ username, password }),
                     });
 
-                    const rawResponse = await response.text(); // Get raw response text
-                    console.log('Raw response:', rawResponse);
-
-                    if (!response.ok) {
-                        alert(rawResponse); // Show raw response for debugging
-                        return;
-                    }
-
-                    const result = JSON.parse(rawResponse); // Parse JSON only if the response is valid
-                    console.log('Parsed result:', result);
+                    const result = await response.json();
+                    console.log('Response from /api/login:', result);
 
                     if (result.success) {
                         localStorage.setItem('sessionId', result.sessionId);
@@ -51,7 +43,7 @@
                         alert(result.message);
                     }
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('Error during login:', error);
                     alert('Failed to connect to the server. Please try again later.');
                 }
             }
