@@ -392,10 +392,12 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
             });
         }
 
+        console.log(`Row deleted from table ${table} with ID ${row.id}`);
+
         // Re-sequence the IDs
         const setRowNumberSql = `SET @row_number = 0`;
-        const updateIdsSql = `UPDATE ?? SET ?? = (@row_number := @row_number + 1)`;
-        const resetAutoIncrementSql = `ALTER TABLE ?? AUTO_INCREMENT = 1`;
+        const updateIdsSql = `UPDATE ${table} SET ${idColumn} = (@row_number := @row_number + 1)`;
+        const resetAutoIncrementSql = `ALTER TABLE ${table} AUTO_INCREMENT = 1`;
 
         // Execute the queries sequentially
         pool.query(setRowNumberSql, (err) => {
@@ -407,7 +409,7 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
                 });
             }
 
-            pool.query(updateIdsSql, [table, idColumn], (err) => {
+            pool.query(updateIdsSql, (err) => {
                 if (err) {
                     console.error('Error updating IDs:', err);
                     return res.status(500).json({
@@ -416,7 +418,7 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
                     });
                 }
 
-                pool.query(resetAutoIncrementSql, [table], (err) => {
+                pool.query(resetAutoIncrementSql, (err) => {
                     if (err) {
                         console.error('Error resetting AUTO_INCREMENT:', err);
                         return res.status(500).json({
