@@ -30,7 +30,12 @@ async function displayTable(tableName) {
                     const td = document.createElement('td');
 
                     // Format date columns
-                    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
+                    if (
+                        key.toLowerCase().includes('date') ||
+                        key.toLowerCase().includes('time') ||
+                        key.toLowerCase() === 'service_start'
+                    ) {
+                        console.log(value);
                         const date = new Date(value);
                         if (!isNaN(date.getTime())) {
                             // Format the date as MM/DD/YYYY
