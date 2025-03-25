@@ -172,7 +172,9 @@ async function addRowToTable(tableName) {
                 value = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
             }
 
-            rowData[headers[index]] = value;
+            // Map the value to the correct column name
+            const columnName = headers[index];
+            rowData[columnName] = value;
         });
 
         const username = localStorage.getItem('username');
