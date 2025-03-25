@@ -229,12 +229,21 @@ app.get('/api/isLoggedIn', (req, res) => {
 });
 
 app.get('/api/getTableData', (req, res) => {
-    const { table } = req.query;
+    const { table, username, sessionId } = req.query;
 
-    if (!table) {
+    if (!table || !username || !sessionId) {
         return res.status(400).json({
             success: false,
-            message: 'Table name is required.',
+            message: 'Table name, username, and session ID are required.',
+        });
+    }
+
+    // Validate session
+    const session = loggedInAccounts[username];
+    if (!session || session.sessionId !== sessionId) {
+        return res.status(403).json({
+            success: false,
+            message: 'Invalid session. Please log in again.',
         });
     }
 
@@ -247,17 +256,43 @@ app.get('/api/getTableData', (req, res) => {
         });
     }
 
-    const sql = `SELECT * FROM ??`; // Use parameterized query to prevent SQL injection
-    pool.query(sql, [table], (err, results) => {
+    // Fetch permission level
+    const sqlPermission = `SELECT permission FROM accounts WHERE username = ?`;
+    pool.query(sqlPermission, [username], (err, permissionResults) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to fetch table data.',
+                message: 'Failed to fetch user permissions.',
             });
         }
 
-        res.json(results);
+        if (permissionResults.length === 0) {
+            return res.status(403).json({
+                success: false,
+                message: 'User not found.',
+            });
+        }
+
+        const userPermission = permissionResults[0].permission;
+
+        // Fetch table data
+        const sql = `SELECT * FROM ??`;
+        pool.query(sql, [table], (err, results) => {
+            if (err) {
+                console.error('Database query error:', err);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Failed to fetch table data.',
+                });
+            }
+
+            res.json({
+                success: true,
+                data: results,
+                permission: userPermission, // Include permission level in the response
+            });
+        });
     });
 });
 

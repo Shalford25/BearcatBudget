@@ -1,10 +1,20 @@
 // Function to fetch and display table data
 async function displayTable(tableName) {
     try {
-        const response = await fetch(`/api/getTableData?table=${encodeURIComponent(tableName)}`);
-        const data = await response.json();
+        const username = localStorage.getItem('username');
+        const sessionId = localStorage.getItem('sessionId');
 
-        if (response.ok) {
+        if (!username || !sessionId) {
+            alert('You are not logged in.');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const response = await fetch(`/api/getTableData?table=${encodeURIComponent(tableName)}&username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            const { data, permission } = result; // Extract data and permission level
             const table = document.getElementById('dataTable');
             table.innerHTML = ''; // Clear existing table data
 
@@ -16,10 +26,12 @@ async function displayTable(tableName) {
                 headerRow.appendChild(th);
             });
 
-            // Add action column for editing/deleting rows
-            const actionTh = document.createElement('th');
-            actionTh.innerText = 'Actions';
-            headerRow.appendChild(actionTh);
+            // Add action column for editing/deleting rows if the user has permission
+            if (permission === 1) {
+                const actionTh = document.createElement('th');
+                actionTh.innerText = 'Actions';
+                headerRow.appendChild(actionTh);
+            }
 
             table.appendChild(headerRow);
 
@@ -49,33 +61,37 @@ async function displayTable(tableName) {
                     tr.appendChild(td);
                 });
 
-                // Add edit and delete buttons
-                const actionTd = document.createElement('td');
-                const editButton = document.createElement('button');
-                editButton.innerText = 'Edit';
-                editButton.onclick = () => editRow(row, tableName);
-                const deleteButton = document.createElement('button');
-                deleteButton.innerText = 'Delete';
-                deleteButton.onclick = () => deleteRow(row, tableName);
-                actionTd.appendChild(editButton);
-                actionTd.appendChild(deleteButton);
-                tr.appendChild(actionTd);
+                // Add edit and delete buttons if the user has permission
+                if (permission === 1) {
+                    const actionTd = document.createElement('td');
+                    const editButton = document.createElement('button');
+                    editButton.innerText = 'Edit';
+                    editButton.onclick = () => editRow(row, tableName);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerText = 'Delete';
+                    deleteButton.onclick = () => deleteRow(row, tableName);
+                    actionTd.appendChild(editButton);
+                    actionTd.appendChild(deleteButton);
+                    tr.appendChild(actionTd);
+                }
 
                 table.appendChild(tr);
             });
 
-            // Add a row for adding new data
-            const addRow = document.createElement('tr');
-            const addButton = document.createElement('button');
-            addButton.innerText = 'Add Row';
-            addButton.onclick = () => addRowToTable(tableName);
-            const addTd = document.createElement('td');
-            addTd.colSpan = Object.keys(data[0]).length + 1; // Span all columns
-            addTd.appendChild(addButton);
-            addRow.appendChild(addTd);
-            table.appendChild(addRow);
+            // Add a row for adding new data if the user has permission
+            if (permission === 1) {
+                const addRow = document.createElement('tr');
+                const addButton = document.createElement('button');
+                addButton.innerText = 'Add Row';
+                addButton.onclick = () => addRowToTable(tableName);
+                const addTd = document.createElement('td');
+                addTd.colSpan = Object.keys(data[0]).length + 1; // Span all columns
+                addTd.appendChild(addButton);
+                addRow.appendChild(addTd);
+                table.appendChild(addRow);
+            }
         } else {
-            alert(data.message || 'Failed to fetch table data.');
+            alert(result.message || 'Failed to fetch table data.');
         }
     } catch (error) {
         console.error('Error fetching table data:', error);
@@ -226,7 +242,23 @@ async function editRow(row, tableName) {
 
         if (columnName !== idField) { // Skip the ID column
             const input = document.createElement('input');
-            input.type = 'text';
+
+            // Apply restrictions based on column name
+            if (columnName.toLowerCase().includes('duration')) {
+                input.type = 'number'; // Use a number input for duration
+                input.min = '0'; // Optional: Set a minimum value
+            } else if (
+                columnName.toLowerCase().includes('date') ||
+                columnName.toLowerCase().includes('time') ||
+                columnName.toLowerCase() === 'service_start'
+            ) {
+                input.type = 'date'; // Use a date picker for date columns
+            } else if (columnName.toLowerCase().includes('price')) {
+                input.type = 'text'; // Leave price as a text input
+            } else {
+                input.type = 'text';
+            }
+
             input.value = cell.innerText;
             input.dataset.column = columnName; // Store the column name for later
             cell.innerHTML = '';
