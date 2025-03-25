@@ -165,6 +165,13 @@ async function addRowToTable(tableName) {
                 }
             }
 
+            // Handle date inputs
+            if (input.type === 'date') {
+                const date = new Date(input.value);
+                date.setDate(date.getDate() + 1); // Add 1 day
+                value = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            }
+
             rowData[headers[index]] = value;
         });
 
@@ -299,6 +306,13 @@ async function editRow(row, tableName) {
                 if (isNaN(value)) {
                     value = null; // Handle invalid numbers
                 }
+            }
+
+            // Handle date inputs
+            if (input.type === 'date') {
+                const date = new Date(input.value);
+                date.setDate(date.getDate() + 1); // Add 1 day
+                value = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
             }
 
             updatedRow[input.dataset.column] = value;
