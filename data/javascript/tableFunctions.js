@@ -195,12 +195,20 @@ async function editRow(row, tableName) {
         originalValues[columnName] = cell.innerText;
 
         if (columnName !== idField) { // Skip the ID column
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = cell.innerText;
-            input.dataset.column = columnName; // Store the column name for later
-            cell.innerHTML = '';
-            cell.appendChild(input);
+            if (columnName.toLowerCase().includes('date') || columnName.toLowerCase().includes('time')) {
+                const input = document.createElement('input');
+                input.type = 'date';
+                const date = new Date(cell.innerText);
+                input.value = !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : ''; // Format as YYYY-MM-DD
+                cell.innerHTML = '';
+                cell.appendChild(input);
+            } else {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = cell.innerText;
+                cell.innerHTML = '';
+                cell.appendChild(input);
+            }
         }
     }
 
