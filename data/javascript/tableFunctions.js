@@ -155,7 +155,17 @@ async function addRowToTable(tableName) {
 
         // Collect data from input fields
         inputs.forEach((input, index) => {
-            rowData[headers[index]] = input.value;
+            let value = input.value;
+
+            // Handle numeric inputs
+            if (input.type === 'number') {
+                value = parseInt(value, 10); // Ensure the value is an integer
+                if (isNaN(value)) {
+                    value = null; // Handle invalid numbers
+                }
+            }
+
+            rowData[headers[index]] = value;
         });
 
         const username = localStorage.getItem('username');
@@ -283,9 +293,12 @@ async function editRow(row, tableName) {
         inputs.forEach(input => {
             let value = input.value;
 
-            // Handle date inputs
-            if (input.type === 'date') {
-                value = input.value; // Use the raw value from the date input (YYYY-MM-DD)
+            // Handle numeric inputs
+            if (input.type === 'number') {
+                value = parseInt(value, 10); // Ensure the value is an integer
+                if (isNaN(value)) {
+                    value = null; // Handle invalid numbers
+                }
             }
 
             updatedRow[input.dataset.column] = value;
