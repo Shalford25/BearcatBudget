@@ -285,8 +285,7 @@ async function editRow(row, tableName) {
 
             // Handle date inputs
             if (input.type === 'date') {
-                const date = new Date(input.value);
-                value = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+                value = input.value; // Use the raw value from the date input (YYYY-MM-DD)
             }
 
             updatedRow[input.dataset.column] = value;
