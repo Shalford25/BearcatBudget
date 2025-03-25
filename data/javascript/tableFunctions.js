@@ -114,33 +114,33 @@ async function addRowToTable(tableName) {
 
     // Exclude the "id" column from input fields
     const headers = Array.from(table.rows[0].cells).map(cell => cell.innerText);
-    const columnCount = headers.length - 1; // Exclude the "Actions" column
     const idField = {
         service: 'service_id',
         transaction: 'transaction_id',
         inventory: 'inventory_id',
     }[tableName];
 
-    for (let i = 0; i < columnCount; i++) {
-        if (headers[i] === idField) continue; // Skip the "id" column
+    // Remove the ID column from the headers array
+    const filteredHeaders = headers.filter(header => header !== idField);
 
+    for (let i = 0; i < filteredHeaders.length; i++) {
         const td = document.createElement('td');
         const input = document.createElement('input');
 
-        if (headers[i].toLowerCase().includes('duration')) {
+        if (filteredHeaders[i].toLowerCase().includes('duration')) {
             input.type = 'number'; // Use a number input for duration
             input.min = '0'; // Optional: Set a minimum value
         } else if (
-            headers[i].toLowerCase().includes('date') ||
-            headers[i].toLowerCase().includes('time') ||
-            headers[i].toLowerCase() === 'service_start'
+            filteredHeaders[i].toLowerCase().includes('date') ||
+            filteredHeaders[i].toLowerCase().includes('time') ||
+            filteredHeaders[i].toLowerCase() === 'service_start'
         ) {
             input.type = 'date'; // Use a date picker for date columns
         } else {
             input.type = 'text';
         }
 
-        input.placeholder = `${headers[i]}`;
+        input.placeholder = `${filteredHeaders[i]}`;
         td.appendChild(input);
         newRow.appendChild(td);
     }
@@ -173,7 +173,7 @@ async function addRowToTable(tableName) {
             }
 
             // Map the value to the correct column name
-            const columnName = headers[index];
+            const columnName = filteredHeaders[index];
             rowData[columnName] = value;
         });
 
