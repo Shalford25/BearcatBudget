@@ -32,7 +32,13 @@ async function displayTable(tableName) {
                     // Format date columns
                     if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
                         const date = new Date(value);
-                        td.innerText = isNaN(date.getTime()) ? value : date.toLocaleDateString(); // Format date
+                        if (!isNaN(date.getTime())) {
+                            // Format the date as MM/DD/YYYY
+                            const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+                            td.innerText = formattedDate;
+                        } else {
+                            td.innerText = value; // Fallback for invalid dates
+                        }
                     } else {
                         td.innerText = value;
                     }
@@ -195,20 +201,12 @@ async function editRow(row, tableName) {
         originalValues[columnName] = cell.innerText;
 
         if (columnName !== idField) { // Skip the ID column
-            if (columnName.toLowerCase().includes('date') || columnName.toLowerCase().includes('time')) {
-                const input = document.createElement('input');
-                input.type = 'date';
-                const date = new Date(cell.innerText);
-                input.value = !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : ''; // Format as YYYY-MM-DD
-                cell.innerHTML = '';
-                cell.appendChild(input);
-            } else {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = cell.innerText;
-                cell.innerHTML = '';
-                cell.appendChild(input);
-            }
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = cell.innerText;
+            input.dataset.column = columnName; // Store the column name for later
+            cell.innerHTML = '';
+            cell.appendChild(input);
         }
     }
 
