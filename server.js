@@ -316,17 +316,6 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
         });
     }
 
-    // Validate `service_duration` if it exists
-    if (row.service_duration !== undefined) {
-        row.service_duration = parseInt(row.service_duration, 10);
-        if (isNaN(row.service_duration)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid value for service_duration. It must be an integer.',
-            });
-        }
-    }
-
     // Exclude the "id" field from the row data
     const tableIdColumns = {
         service: 'service_id',

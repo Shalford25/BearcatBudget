@@ -112,41 +112,32 @@ async function addRowToTable(tableName) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Exclude the "id" column from input fields
+    // Get the column headers
     const headers = Array.from(table.rows[0].cells).map(cell => cell.innerText);
-    const idField = {
-        service: 'service_id',
-        transaction: 'transaction_id',
-        inventory: 'inventory_id',
-    }[tableName];
 
-    // Remove the ID column from the headers array
-    const filteredHeaders = headers.filter(header => header !== idField);
-
-    for (let i = 0; i < filteredHeaders.length; i++) {
+    for (let i = 0; i < headers.length; i++) {
         const td = document.createElement('td');
         const input = document.createElement('input');
 
-        if (filteredHeaders[i].toLowerCase().includes('duration')) {
+        if (headers[i].toLowerCase().includes('duration')) {
             input.type = 'number'; // Use a number input for duration
             input.min = '0'; // Optional: Set a minimum value
         } else if (
-            filteredHeaders[i].toLowerCase().includes('date') ||
-            filteredHeaders[i].toLowerCase().includes('time') ||
-            filteredHeaders[i].toLowerCase() === 'service_start'
+            headers[i].toLowerCase().includes('date') ||
+            headers[i].toLowerCase().includes('time') ||
+            headers[i].toLowerCase() === 'service_start'
         ) {
             input.type = 'date'; // Use a date picker for date columns
         } else {
             input.type = 'text';
         }
 
-        input.placeholder = `${filteredHeaders[i]}`;
+        input.placeholder = `${headers[i]}`;
         td.appendChild(input);
         newRow.appendChild(td);
     }
 
-    // Add "Confirm" and "Cancel" buttons
-    const actionTd = document.createElement('td');
+    // Add "Confirm" button
     const confirmButton = document.createElement('button');
     confirmButton.innerText = 'Confirm';
     confirmButton.onclick = async () => {
@@ -173,7 +164,7 @@ async function addRowToTable(tableName) {
             }
 
             // Map the value to the correct column name
-            const columnName = filteredHeaders[index];
+            const columnName = headers[index];
             rowData[columnName] = value;
         });
 
@@ -198,8 +189,6 @@ async function addRowToTable(tableName) {
             if (result.success) {
                 alert('Row added successfully!');
                 displayTable(tableName); // Refresh the table
-            } else if (response.status === 403) {
-                alert('You do not have permission to add rows.');
             } else {
                 alert(result.message || 'Failed to add row.');
             }
@@ -209,15 +198,9 @@ async function addRowToTable(tableName) {
         }
     };
 
-    const cancelButton = document.createElement('button');
-    cancelButton.innerText = 'Cancel';
-    cancelButton.onclick = () => {
-        newRow.remove(); // Remove the row if the user cancels
-    };
-
-    actionTd.appendChild(confirmButton);
-    actionTd.appendChild(cancelButton);
-    newRow.appendChild(actionTd);
+    const confirmTd = document.createElement('td');
+    confirmTd.appendChild(confirmButton);
+    newRow.appendChild(confirmTd);
 
     // Append the new row to the table
     table.appendChild(newRow);
