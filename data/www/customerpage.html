@@ -9,8 +9,6 @@
                 const username = localStorage.getItem('username');
                 const sessionId = localStorage.getItem('sessionId');
 
-                console.log('Loaded username and sessionId from localStorage:', { username, sessionId }); // Debugging log
-
                 if (!username || !sessionId) {
                     alert('You are not logged in. Redirecting to login page.');
                     window.location.href = 'login.html';
@@ -19,11 +17,7 @@
 
                 try {
                     const response = await fetch(`/api/isLoggedIn?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
-                    const rawResponse = await response.text(); // Get raw response text
-                    console.log('Raw response from /api/isLoggedIn:', rawResponse); // Debugging log
-
-                    const result = JSON.parse(rawResponse); // Parse JSON only if valid
-                    console.log('Parsed result:', result); // Debugging log
+                    const result = await response.json();
 
                     if (result.success && result.isLoggedIn) {
                         const welcomeMessage = document.querySelector('.accountBar h2');
@@ -55,9 +49,10 @@
             document.addEventListener('DOMContentLoaded', loadNavbar);
         </script>
         <script src="../javascript/navbar.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="../javascript/graph.js"></script>
     </head>
     <body>
-
         <div id="navbar-container"></div>
 
         <div class="content">
@@ -65,12 +60,7 @@
                 <h2>Welcome, Username Here!</h2>
             </div>
             <div class="container">
-                <div>Box #1</div>
-                <div>Box #2</div>
-                <div>Box #3</div>
-                <div>Box #4</div>
-                <div>Box #5</div>
-                <div>Box #6</div>
+                <canvas id="myChart" width="400" height="200"></canvas>
             </div>
         </div>
     </body>

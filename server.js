@@ -296,6 +296,52 @@ app.get('/api/getTableData', (req, res) => {
     });
 });
 
+app.get('/api/getGraphData', (req, res) => {
+    const { table, username, sessionId } = req.query;
+
+    if (!table || !username || !sessionId) {
+        return res.status(400).json({
+            success: false,
+            message: 'Table name, username, and session ID are required.',
+        });
+    }
+
+    // Validate session
+    const session = loggedInAccounts[username];
+    if (!session || session.sessionId !== sessionId) {
+        return res.status(403).json({
+            success: false,
+            message: 'Invalid session. Please log in again.',
+        });
+    }
+
+    // Validate table name to prevent SQL injection
+    const allowedTables = ['service', 'transaction', 'inventory'];
+    if (!allowedTables.includes(table)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid table name.',
+        });
+    }
+
+    // Fetch data for the graph
+    const sql = `SELECT * FROM ??`;
+    pool.query(sql, [table], (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch graph data.',
+            });
+        }
+
+        res.json({
+            success: true,
+            data: results,
+        });
+    });
+});
+
 // Route to add a new row
 app.post('/api/addRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
