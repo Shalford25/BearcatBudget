@@ -42,11 +42,17 @@ async function displayTable(tableName) {
                     const td = document.createElement('td');
 
                     // Format date columns
-                    if (
-                        key.toLowerCase().includes('date') ||
-                        key.toLowerCase().includes('time') ||
-                        key.toLowerCase() === 'service_start'
-                    ) {
+                    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
+                        const date = new Date(value);
+                        if (!isNaN(date.getTime())) {
+                            // Convert to EST
+                            const estDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                            const formattedDate = `${estDate.getMonth() + 1}/${estDate.getDate()}/${estDate.getFullYear()}`;
+                            td.innerText = formattedDate;
+                        } else {
+                            td.innerText = value; // Fallback for invalid dates
+                        }
+                    } else if (key.toLowerCase() === 'service_start') {
                         const date = new Date(value);
                         if (!isNaN(date.getTime())) {
                             // Format the date as MM/DD/YYYY
