@@ -30,12 +30,7 @@ async function displayTable(tableName) {
                     const td = document.createElement('td');
 
                     // Format date columns
-                    if (
-                        key.toLowerCase().includes('date') ||
-                        key.toLowerCase().includes('time') ||
-                        key.toLowerCase() === 'service_start' ||
-                        key.toLowerCase() === 'service_update'
-                    ) {
+                    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
                         const date = new Date(value);
                         if (!isNaN(date.getTime())) {
                             // Format the date as MM/DD/YYYY
@@ -48,6 +43,7 @@ async function displayTable(tableName) {
                         td.innerText = value;
                     }
 
+                    console.log('Key:', key, 'Value:', value);
                     tr.appendChild(td);
                 });
 
