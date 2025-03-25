@@ -69,7 +69,7 @@ async function routeHome() {
         const response = await fetch(`/api/isLoggedIn?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
         const result = await response.json();
 
-        if (result.success && result.isLoggedIn) {
+        if (response.ok && result.success && result.isLoggedIn) {
             // User is logged in, redirect to customerpage.html
             window.location.href = 'customerpage.html';
         } else {

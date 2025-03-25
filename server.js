@@ -205,26 +205,25 @@ app.post('/api/logout', (req, res) => {
 app.get('/api/isLoggedIn', (req, res) => {
     const { username, sessionId } = req.query;
 
-    console.log('Received /api/isLoggedIn request:', { username, sessionId }); // Debugging log
-
     if (!username || !sessionId) {
-        console.log('Missing username or sessionId'); // Debugging log
         return res.status(400).json({
             success: false,
-            message: 'Username and session ID are required to check login status.',
+            message: 'Username and session ID are required.',
         });
     }
 
     const session = loggedInAccounts[username];
-    console.log('Session data for user:', session); // Debugging log
-
     if (session && session.sessionId === sessionId) {
-        console.log('Session is valid'); // Debugging log
-        res.setHeader('Content-Type', 'application/json');
-        res.json({ success: true, isLoggedIn: true, loginTime: session.loginTime });
+        return res.json({
+            success: true,
+            isLoggedIn: true,
+        });
     } else {
-        console.log('Session is invalid or expired'); // Debugging log
-        res.json({ success: true, isLoggedIn: false });
+        return res.status(403).json({
+            success: false,
+            isLoggedIn: false,
+            message: 'Invalid session. Please log in again.',
+        });
     }
 });
 
