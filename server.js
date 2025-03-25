@@ -348,10 +348,7 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
 app.post('/api/editRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
-    console.log('Received request to edit row:', { table, row });
-
     if (!table || !row || !row.id) {
-        console.log('Missing table name or row ID');
         return res.status(400).json({
             success: false,
             message: 'Table name and row ID are required.',
@@ -367,17 +364,17 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
 
     const idColumn = tableIdColumns[table];
     if (!idColumn) {
-        console.log('Invalid table name:', table);
         return res.status(400).json({
             success: false,
             message: 'Invalid table name.',
         });
     }
 
-    const { id, ...updateData } = row; // Extract the ID and the rest of the row data
+    const updateData = { ...row };
+    delete updateData.id; // Remove the ID from the update data
 
     const sql = `UPDATE ?? SET ? WHERE ?? = ?`;
-    pool.query(sql, [table, updateData, idColumn, id], (err, result) => {
+    pool.query(sql, [table, updateData, idColumn, row.id], (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
@@ -386,7 +383,6 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
             });
         }
 
-        console.log('Row updated successfully:', { table, id });
         res.json({ success: true, message: 'Row updated successfully.' });
     });
 });
