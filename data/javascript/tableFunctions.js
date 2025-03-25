@@ -112,8 +112,10 @@ async function addRowToTable(tableName) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Get the column headers
-    const headers = Array.from(table.rows[0].cells).map(cell => cell.innerText);
+    // Get the column headers, excluding the "Actions" column
+    const headers = Array.from(table.rows[0].cells)
+        .map(cell => cell.innerText)
+        .filter(header => header.toLowerCase() !== 'actions'); // Exclude "Actions"
 
     for (let i = 0; i < headers.length; i++) {
         const td = document.createElement('td');
@@ -243,9 +245,13 @@ async function editRow(row, tableName) {
 
     // Replace cells with input fields
     const originalValues = {};
+    const headers = Array.from(table.rows[0].cells)
+        .map(cell => cell.innerText)
+        .filter(header => header.toLowerCase() !== 'actions'); // Exclude "Actions"
+
     for (let i = 0; i < rowElement.cells.length - 1; i++) { // Exclude the "Actions" column
         const cell = rowElement.cells[i];
-        const columnName = table.rows[0].cells[i].innerText; // Get column name from header
+        const columnName = headers[i]; // Get column name from filtered headers
         originalValues[columnName] = cell.innerText;
 
         if (columnName !== idField) { // Skip the ID column
@@ -261,8 +267,6 @@ async function editRow(row, tableName) {
                 columnName.toLowerCase() === 'service_start'
             ) {
                 input.type = 'date'; // Use a date picker for date columns
-            } else if (columnName.toLowerCase().includes('price')) {
-                input.type = 'text'; // Leave price as a text input
             } else {
                 input.type = 'text';
             }
@@ -344,20 +348,9 @@ async function editRow(row, tableName) {
         // Restore original values
         for (let i = 0; i < rowElement.cells.length - 1; i++) {
             const cell = rowElement.cells[i];
-            const columnName = table.rows[0].cells[i].innerText;
+            const columnName = headers[i];
             cell.innerHTML = originalValues[columnName];
         }
-
-        // Restore original "Actions" buttons
-        actionsCell.innerHTML = '';
-        const editButton = document.createElement('button');
-        editButton.innerText = 'Edit';
-        editButton.onclick = () => editRow(row, tableName);
-        const deleteButton = document.createElement('button');
-        deleteButton.innerText = 'Delete';
-        deleteButton.onclick = () => deleteRow(row, tableName);
-        actionsCell.appendChild(editButton);
-        actionsCell.appendChild(deleteButton);
     };
 
     actionsCell.innerHTML = '';
