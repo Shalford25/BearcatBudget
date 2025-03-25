@@ -102,9 +102,11 @@ async function addRowToTable(tableName) {
         const td = document.createElement('td');
         const input = document.createElement('input');
 
-        // Use a date picker for date columns
-        if (headers[i].toLowerCase().includes('date') || headers[i].toLowerCase().includes('time')) {
-            input.type = 'date';
+        if (headers[i].toLowerCase().includes('duration')) {
+            input.type = 'number'; // Use a number input for duration
+            input.min = '0'; // Optional: Set a minimum value
+        } else if (headers[i].toLowerCase().includes('date') || headers[i].toLowerCase().includes('time')) {
+            input.type = 'date'; // Use a date picker for date columns
         } else {
             input.type = 'text';
         }
