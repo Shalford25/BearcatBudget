@@ -35,7 +35,6 @@ async function displayTable(tableName) {
                         key.toLowerCase().includes('time') ||
                         key.toLowerCase() === 'service_start'
                     ) {
-                        console.log(value);
                         const date = new Date(value);
                         if (!isNaN(date.getTime())) {
                             // Format the date as MM/DD/YYYY
@@ -47,8 +46,6 @@ async function displayTable(tableName) {
                     } else {
                         td.innerText = value;
                     }
-
-                    console.log('Key:', key, 'Value:', value);
                     tr.appendChild(td);
                 });
 
@@ -111,7 +108,11 @@ async function addRowToTable(tableName) {
         if (headers[i].toLowerCase().includes('duration')) {
             input.type = 'number'; // Use a number input for duration
             input.min = '0'; // Optional: Set a minimum value
-        } else if (headers[i].toLowerCase().includes('date') || headers[i].toLowerCase().includes('time')) {
+        } else if (
+            headers[i].toLowerCase().includes('date') ||
+            headers[i].toLowerCase().includes('time') ||
+            headers[i].toLowerCase() === 'service_start'
+        ) {
             input.type = 'date'; // Use a date picker for date columns
         } else {
             input.type = 'text';
