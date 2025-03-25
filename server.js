@@ -348,10 +348,10 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
 app.post('/api/editRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
-    if (!table || !row || !row.id) {
+    if (!table || !row) {
         return res.status(400).json({
             success: false,
-            message: 'Table name and row ID are required.',
+            message: 'Table name and row data are required.',
         });
     }
 
@@ -370,11 +370,19 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
         });
     }
 
+    // Ensure the row contains the correct ID field
+    if (!row[idColumn]) {
+        return res.status(400).json({
+            success: false,
+            message: `Row is missing the required ID field: ${idColumn}`,
+        });
+    }
+
     const updateData = { ...row };
-    delete updateData.id; // Remove the ID from the update data
+    delete updateData[idColumn]; // Remove the ID from the update data
 
     const sql = `UPDATE ?? SET ? WHERE ?? = ?`;
-    pool.query(sql, [table, updateData, idColumn, row.id], (err, result) => {
+    pool.query(sql, [table, updateData, idColumn, row[idColumn]], (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
