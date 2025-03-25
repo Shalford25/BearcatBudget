@@ -178,6 +178,9 @@ async function addRowToTable(tableName) {
 
 // Function to edit a row
 async function editRow(row, tableName) {
+    console.log('Editing row:', row);
+    console.log('Table name:', tableName);
+
     const table = document.getElementById('dataTable');
     const idField = {
         service: 'service_id',
@@ -185,7 +188,11 @@ async function editRow(row, tableName) {
         inventory: 'inventory_id',
     }[tableName];
 
-    const rowId = row[idField]; // Get the ID of the row being edited
+    console.log('ID field:', idField);
+
+    const rowId = row[idField];
+    console.log('Row ID:', rowId);
+
     const rowElement = Array.from(table.rows).find(tr => {
         const firstCell = tr.cells[0];
         return firstCell && firstCell.innerText == rowId; // Match the row by ID
@@ -193,6 +200,7 @@ async function editRow(row, tableName) {
 
     if (!rowElement) {
         alert('Row not found in the table.');
+        console.error('Row not found. Row ID:', rowId, 'Table name:', tableName);
         return;
     }
 
