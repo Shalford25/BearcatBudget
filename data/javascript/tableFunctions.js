@@ -275,7 +275,15 @@ async function editRow(row, tableName) {
         const updatedRow = { [idField]: rowId }; // Include the ID in the updated data
 
         inputs.forEach(input => {
-            updatedRow[input.dataset.column] = input.value;
+            let value = input.value;
+
+            // Handle date inputs
+            if (input.type === 'date') {
+                const date = new Date(input.value);
+                value = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            }
+
+            updatedRow[input.dataset.column] = value;
         });
 
         const username = localStorage.getItem('username');
@@ -304,8 +312,6 @@ async function editRow(row, tableName) {
             if (result.success) {
                 alert('Row updated successfully!');
                 displayTable(tableName); // Refresh the table
-            } else if (response.status === 403) {
-                alert('You do not have permission to edit rows.');
             } else {
                 alert(result.message || 'Failed to update row.');
             }
