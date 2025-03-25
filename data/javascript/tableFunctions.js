@@ -115,7 +115,7 @@ async function addRowToTable(tableName) {
     // Get the column headers, excluding the "ID" column
     const headers = Array.from(table.rows[0].cells)
         .map(cell => cell.innerText)
-        .filter(header => !header.toLowerCase().includes('id')); // Exclude "ID"
+        .filter(header => !header.toLowerCase().includes('id')) // Exclude "ID"
         .filter(header => header.toLowerCase() !== 'actions'); // Exclude "Actions"
 
 
