@@ -112,10 +112,10 @@ async function addRowToTable(tableName) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Get the column headers, excluding the "Actions" column
+    // Get the column headers, excluding the "ID" column
     const headers = Array.from(table.rows[0].cells)
         .map(cell => cell.innerText)
-        .filter(header => header.toLowerCase() !== 'actions'); // Exclude "Actions"
+        .filter(header => !header.toLowerCase().includes('id')); // Exclude "ID"
 
     for (let i = 0; i < headers.length; i++) {
         const td = document.createElement('td');
@@ -247,7 +247,7 @@ async function editRow(row, tableName) {
     const originalValues = {};
     const headers = Array.from(table.rows[0].cells)
         .map(cell => cell.innerText)
-        .filter(header => header.toLowerCase() !== 'actions'); // Exclude "Actions"
+        .filter(header => !header.toLowerCase().includes('id')); // Exclude "ID"
 
     for (let i = 0; i < rowElement.cells.length - 1; i++) { // Exclude the "Actions" column
         const cell = rowElement.cells[i];
@@ -351,6 +351,17 @@ async function editRow(row, tableName) {
             const columnName = headers[i];
             cell.innerHTML = originalValues[columnName];
         }
+
+        // Restore the Edit/Delete buttons
+        actionsCell.innerHTML = '';
+        const editButton = document.createElement('button');
+        editButton.innerText = 'Edit';
+        editButton.onclick = () => editRow(row, tableName);
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Delete';
+        deleteButton.onclick = () => deleteRow(row, tableName);
+        actionsCell.appendChild(editButton);
+        actionsCell.appendChild(deleteButton);
     };
 
     actionsCell.innerHTML = '';
