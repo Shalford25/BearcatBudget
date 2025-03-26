@@ -181,9 +181,12 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
+    console.log('Logout request received:', req.body); // Debugging
+
     const { username, sessionId } = req.body;
 
     if (!username || !sessionId) {
+        console.log('Missing username or sessionId in logout request.'); // Debugging
         return res.status(400).json({
             success: false,
             message: 'Username and session ID are required to log out.',
@@ -195,6 +198,7 @@ app.post('/api/logout', (req, res) => {
         console.log(`User ${username} has logged out.`);
         res.json({ success: true, message: 'Logout successful!' });
     } else {
+        console.log('Invalid session or user is not logged in.'); // Debugging
         res.status(400).json({
             success: false,
             message: 'Invalid session or user is not logged in.',

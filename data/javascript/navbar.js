@@ -46,8 +46,12 @@ async function logout() {
     }
 
     try {
-        const response = await fetch(`/api/logout?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`, {
+        const response = await fetch('/api/logout', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Ensure the content type is JSON
+            },
+            body: JSON.stringify({ username, sessionId }), // Send username and sessionId in the body
         });
 
         if (response.ok) {
@@ -56,7 +60,8 @@ async function logout() {
             alert('You have been logged out.');
             window.location.href = 'login.html';
         } else {
-            alert('Failed to log out. Please try again.');
+            const result = await response.json();
+            alert(result.message || 'Failed to log out. Please try again.');
         }
     } catch (error) {
         console.error('Error logging out:', error);
