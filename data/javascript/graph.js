@@ -1,5 +1,5 @@
 // Fetch graph data from the backend
-async function fetchGraphData(endpoint) {
+async function fetchGraphData(tableName) {
     const username = localStorage.getItem('username');
     const sessionId = localStorage.getItem('sessionId');
 
@@ -10,7 +10,9 @@ async function fetchGraphData(endpoint) {
     }
 
     try {
-        const response = await fetch(`${endpoint}?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
+        // Ensure the table name is passed as a query parameter
+        const endpoint = `/api/getGraphData?table=${encodeURIComponent(tableName)}&username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`;
+        const response = await fetch(endpoint);
         const result = await response.json();
 
         if (response.ok && result.success) {
@@ -28,7 +30,7 @@ async function fetchGraphData(endpoint) {
 
 // Render Service Prices Graph
 async function renderServicePrices() {
-    const graphData = await fetchGraphData('/api/getGraphData?table=service');
+    const graphData = await fetchGraphData('service');
 
     if (graphData.length === 0) {
         console.error('No data available for Service Prices graph.');
@@ -64,7 +66,7 @@ async function renderServicePrices() {
 
 // Render Transaction Amounts by Type Graph
 async function renderTransactionTypes() {
-    const graphData = await fetchGraphData('/api/getGraphData?table=transaction');
+    const graphData = await fetchGraphData('transaction');
 
     if (graphData.length === 0) {
         console.error('No data available for Transaction Types graph.');
@@ -93,7 +95,7 @@ async function renderTransactionTypes() {
 
 // Render Inventory Stock Levels Graph
 async function renderInventoryStock() {
-    const graphData = await fetchGraphData('/api/getGraphData?table=inventory');
+    const graphData = await fetchGraphData('inventory');
 
     if (graphData.length === 0) {
         console.error('No data available for Inventory Stock Levels graph.');
