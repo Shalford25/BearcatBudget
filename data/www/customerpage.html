@@ -41,6 +41,9 @@
                     }
                     const navbarHTML = await response.text();
                     document.getElementById('navbar-container').innerHTML = navbarHTML;
+
+                    // Call loadAuthButton after navbar is loaded
+                    loadAuthButton();
                 } catch (error) {
                     console.error('Error loading navbar:', error);
                 }

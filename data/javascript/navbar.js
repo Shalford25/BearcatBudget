@@ -3,6 +3,11 @@ async function loadAuthButton() {
     const sessionId = localStorage.getItem('sessionId');
     const authButtonContainer = document.getElementById('auth-button-container');
 
+    if (!authButtonContainer) {
+        console.error('auth-button-container element not found in the DOM.');
+        return;
+    }
+
     console.log('Username in localStorage:', username); // Debugging
     console.log('Session ID in localStorage:', sessionId); // Debugging
 
