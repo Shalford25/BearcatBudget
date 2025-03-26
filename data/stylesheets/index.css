@@ -80,8 +80,10 @@ h2, p{
     justify-content: start; 
     align-items: center;
     gap: 40px;
-    position:relative;
-    left: 350px;
+    position:absolute;
+    left: 50%;
     top:50%;
-    transform:translateY(55%);
+    transform:translate(-50%, -50%);
+    width:auto;
+    height:auto;
   }
