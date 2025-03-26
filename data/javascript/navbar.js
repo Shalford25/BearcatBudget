@@ -3,11 +3,15 @@ async function loadAuthButton() {
     const sessionId = localStorage.getItem('sessionId');
     const authButtonContainer = document.getElementById('auth-button-container');
 
+    console.log('Username in localStorage:', username); // Debugging
+    console.log('Session ID in localStorage:', sessionId); // Debugging
+
     // Clear any existing content in the container
     authButtonContainer.innerHTML = '';
 
     if (!username || !sessionId) {
         // User is not logged in, show the Login button
+        console.log('User is not logged in. Displaying Login button.'); // Debugging
         const loginButton = document.createElement('input');
         loginButton.type = 'button';
         loginButton.value = 'Login';
@@ -17,6 +21,7 @@ async function loadAuthButton() {
         authButtonContainer.appendChild(loginButton);
     } else {
         // User is logged in, show the Logout button
+        console.log('User is logged in. Displaying Logout button.'); // Debugging
         const logoutButton = document.createElement('input');
         logoutButton.type = 'button';
         logoutButton.value = 'Logout';

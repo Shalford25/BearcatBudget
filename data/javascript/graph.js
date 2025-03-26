@@ -1,16 +1,16 @@
 // Fetch graph data from the backend
-async function fetchGraphData(tableName) {
+async function fetchGraphData(endpoint) {
     const username = localStorage.getItem('username');
     const sessionId = localStorage.getItem('sessionId');
 
     if (!username || !sessionId) {
         alert('You are not logged in.');
         window.location.href = 'login.html';
-        return;
+        return [];
     }
 
     try {
-        const response = await fetch(`/api/getGraphData?table=${encodeURIComponent(tableName)}&username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
+        const response = await fetch(`${endpoint}?username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
         const result = await response.json();
 
         if (response.ok && result.success) {
@@ -26,31 +26,28 @@ async function fetchGraphData(tableName) {
     }
 }
 
-// Render the graph using Chart.js
-async function renderGraph() {
-    const tableName = 'transaction'; // Replace with the table you want to graph
-    const graphData = await fetchGraphData(tableName);
+// Render Service Prices Graph
+async function renderServicePrices() {
+    const graphData = await fetchGraphData('/api/getGraphData?table=service');
 
     if (graphData.length === 0) {
-        console.error('No data available for the graph.');
+        console.error('No data available for Service Prices graph.');
         return;
     }
 
-    // Prepare data for the chart
-    const labels = graphData.map(row => row.date || row.name); // Replace with the appropriate column
-    const values = graphData.map(row => row.amount || row.value); // Replace with the appropriate column
+    const labels = graphData.map(row => row.service_name);
+    const values = graphData.map(row => row.service_price);
 
-    // Create the chart
-    const ctx = document.getElementById('myChart').getContext('2d');
+    const ctx = document.getElementById('servicePricesChart').getContext('2d');
     new Chart(ctx, {
-        type: 'bar', // Change to 'line', 'pie', etc., as needed
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Transaction Amounts', // Replace with your label
+                label: 'Service Prices',
                 data: values,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             }]
         },
@@ -65,5 +62,74 @@ async function renderGraph() {
     });
 }
 
-// Automatically render the graph when the page loads
-document.addEventListener('DOMContentLoaded', renderGraph);
+// Render Transaction Amounts by Type Graph
+async function renderTransactionTypes() {
+    const graphData = await fetchGraphData('/api/getGraphData?table=transaction');
+
+    if (graphData.length === 0) {
+        console.error('No data available for Transaction Types graph.');
+        return;
+    }
+
+    const labels = graphData.map(row => row.transaction_type);
+    const values = graphData.map(row => row.transaction_amount);
+
+    const ctx = document.getElementById('transactionTypesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Transaction Amounts by Type',
+                data: values,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+}
+
+// Render Inventory Stock Levels Graph
+async function renderInventoryStock() {
+    const graphData = await fetchGraphData('/api/getGraphData?table=inventory');
+
+    if (graphData.length === 0) {
+        console.error('No data available for Inventory Stock Levels graph.');
+        return;
+    }
+
+    const labels = graphData.map(row => row.item_name);
+    const values = graphData.map(row => row.quantity);
+
+    const ctx = document.getElementById('inventoryStockChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Stock Levels',
+                data: values,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Automatically render all graphs when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    renderServicePrices();
+    renderTransactionTypes();
+    renderInventoryStock();
+});
