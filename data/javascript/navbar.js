@@ -1,6 +1,6 @@
 async function loadAuthButton() {
-    const username = localStorage.getItem('username');
-    const sessionId = localStorage.getItem('sessionId');
+    const username = localStorage.getItem('username') || getCookie('username');
+    const sessionId = localStorage.getItem('sessionId') || getCookie('sessionId');
     const authButtonContainer = document.getElementById('auth-button-container');
 
     if (!authButtonContainer) {
@@ -8,15 +8,15 @@ async function loadAuthButton() {
         return;
     }
 
-    console.log('Username in localStorage:', username); // Debugging
-    console.log('Session ID in localStorage:', sessionId); // Debugging
+    console.log('Username in localStorage or cookies:', username);
+    console.log('Session ID in localStorage or cookies:', sessionId);
 
     // Clear any existing content in the container
     authButtonContainer.innerHTML = '';
 
     if (!username || !sessionId) {
         // User is not logged in, show the Login button
-        console.log('User is not logged in. Displaying Login button.'); // Debugging
+        console.log('User is not logged in. Displaying Login button.');
         const loginButton = document.createElement('input');
         loginButton.type = 'button';
         loginButton.value = 'Login';
@@ -26,13 +26,20 @@ async function loadAuthButton() {
         authButtonContainer.appendChild(loginButton);
     } else {
         // User is logged in, show the Logout button
-        console.log('User is logged in. Displaying Logout button.'); // Debugging
+        console.log('User is logged in. Displaying Logout button.');
         const logoutButton = document.createElement('input');
         logoutButton.type = 'button';
         logoutButton.value = 'Logout';
         logoutButton.onclick = logout;
         authButtonContainer.appendChild(logoutButton);
     }
+}
+
+// Helper function to get a cookie value by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 async function logout() {
@@ -49,14 +56,20 @@ async function logout() {
         const response = await fetch('/api/logout', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json', // Ensure the content type is JSON
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, sessionId }), // Send username and sessionId in the body
+            body: JSON.stringify({ username, sessionId }),
         });
 
         if (response.ok) {
+            // Clear localStorage
             localStorage.removeItem('username');
             localStorage.removeItem('sessionId');
+
+            // Clear cookies
+            document.cookie = 'sessionId=; path=/; max-age=0;';
+            document.cookie = 'username=; path=/; max-age=0;';
+
             alert('You have been logged out.');
             window.location.href = 'login.html';
         } else {
