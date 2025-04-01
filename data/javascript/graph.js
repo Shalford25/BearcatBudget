@@ -10,13 +10,11 @@ async function fetchGraphData(tableName) {
     }
 
     try {
-        // Ensure the table name is passed as a query parameter
-        const endpoint = `/api/getGraphData?table=${encodeURIComponent(tableName)}&username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`;
-        const response = await fetch(endpoint);
+        const response = await fetch(`/api/getGraphData?table=${encodeURIComponent(tableName)}&username=${encodeURIComponent(username)}&sessionId=${encodeURIComponent(sessionId)}`);
         const result = await response.json();
 
         if (response.ok && result.success) {
-            return result.data; // Return the data for the graph
+            return result.data;
         } else {
             alert(result.message || 'Failed to fetch graph data.');
             return [];
@@ -129,9 +127,136 @@ async function renderInventoryStock() {
     });
 }
 
+// Render Revenue by Service Graph
+async function renderRevenueByService() {
+    const graphData = await fetchGraphData('transaction');
+
+    if (graphData.length === 0) {
+        console.error('No data available for Revenue by Service graph.');
+        return;
+    }
+
+    // Group data by service and calculate total revenue
+    const revenueByService = {};
+    graphData.forEach(row => {
+        if (row.transaction_type === 'sale') {
+            revenueByService[row.service_name] = (revenueByService[row.service_name] || 0) + row.transaction_amount;
+        }
+    });
+
+    const labels = Object.keys(revenueByService);
+    const values = Object.values(revenueByService);
+
+    const ctx = document.getElementById('revenueByServiceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenue by Service',
+                data: values,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Render Transactions Over Time Graph
+async function renderTransactionsOverTime() {
+    const graphData = await fetchGraphData('transaction');
+
+    if (graphData.length === 0) {
+        console.error('No data available for Transactions Over Time graph.');
+        return;
+    }
+
+    // Group data by date and calculate total transaction amounts
+    const transactionsByDate = {};
+    graphData.forEach(row => {
+        const date = new Date(row.transaction_date).toISOString().split('T')[0];
+        transactionsByDate[date] = (transactionsByDate[date] || 0) + row.transaction_amount;
+    });
+
+    const labels = Object.keys(transactionsByDate).sort();
+    const values = labels.map(date => transactionsByDate[date]);
+
+    const ctx = document.getElementById('transactionsOverTimeChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Transactions Over Time',
+                data: values,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Render Inventory Value by Item Graph
+async function renderInventoryValue() {
+    const graphData = await fetchGraphData('inventory');
+
+    if (graphData.length === 0) {
+        console.error('No data available for Inventory Value by Item graph.');
+        return;
+    }
+
+    // Calculate inventory value for each item
+    const labels = graphData.map(row => row.item_name);
+    const values = graphData.map(row => row.quantity * row.unit_price);
+
+    const ctx = document.getElementById('inventoryValueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Inventory Value by Item',
+                data: values,
+                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
 // Automatically render all graphs when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     renderServicePrices();
     renderTransactionTypes();
     renderInventoryStock();
+    renderRevenueByService();
+    renderTransactionsOverTime();
+    renderInventoryValue();
 });
