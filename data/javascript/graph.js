@@ -1,3 +1,11 @@
+// Utility function to format column names
+function formatColumnName(columnName) {
+    return columnName
+        .split('_') // Split the column name by underscores
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+        .join(' '); // Join the words with spaces
+}
+
 // Fetch graph data from the backend
 async function fetchGraphData(tableName) {
     const username = localStorage.getItem('username');
@@ -35,7 +43,7 @@ async function renderServicePrices() {
         return;
     }
 
-    const labels = graphData.map(row => row.service_name);
+    const labels = graphData.map(row => formatColumnName(row.service_name)); // Format column names
     const values = graphData.map(row => row.service_price);
 
     const ctx = document.getElementById('servicePricesChart').getContext('2d');
@@ -180,7 +188,6 @@ async function renderTransactionsOverTime() {
         return;
     }
 
-    // Group data by date and calculate total transaction amounts
     const transactionsByDate = {};
     graphData.forEach(row => {
         const date = new Date(row.transaction_date).toISOString().split('T')[0];
@@ -194,7 +201,7 @@ async function renderTransactionsOverTime() {
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: labels,
+            labels: labels.map(label => formatColumnName(label)), // Format column names
             datasets: [{
                 label: 'Transactions Over Time',
                 data: values,
