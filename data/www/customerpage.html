@@ -21,7 +21,14 @@
 
                     if (result.success && result.isLoggedIn) {
                         const welcomeMessage = document.querySelector('.accountBar h2');
-                        welcomeMessage.textContent = `Welcome, ${username}!`;
+
+                        // Modify the username to capitalize first and last names
+                        const formattedUsername = username
+                            .split('_') // Split by underscores
+                            .map(namePart => namePart.charAt(0).toUpperCase() + namePart.slice(1).toLowerCase()) // Capitalize each part
+                            .join(' '); // Join with spaces
+
+                        welcomeMessage.textContent = `Welcome, ${formattedUsername}!`;
                     } else {
                         alert('Your session has expired. Redirecting to login page.');
                         window.location.href = 'login.html';
