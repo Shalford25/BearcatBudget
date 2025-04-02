@@ -139,7 +139,7 @@ async function renderRevenueByService() {
     // Group data by service and calculate total revenue
     const revenueByService = {};
     graphData.forEach(row => {
-        if (row.transaction_type === 'sale') {
+        if (row.transaction_type === 'sale' && row.service_name && row.transaction_amount) {
             revenueByService[row.service_name] = (revenueByService[row.service_name] || 0) + row.transaction_amount;
         }
     });
@@ -183,11 +183,13 @@ async function renderTransactionsOverTime() {
     // Group data by date and calculate total transaction amounts
     const transactionsByDate = {};
     graphData.forEach(row => {
-        const date = new Date(row.transaction_date).toISOString().split('T')[0];
-        transactionsByDate[date] = (transactionsByDate[date] || 0) + row.transaction_amount;
+        if (row.transaction_date && row.transaction_amount) {
+            const date = new Date(row.transaction_date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            transactionsByDate[date] = (transactionsByDate[date] || 0) + row.transaction_amount;
+        }
     });
 
-    const labels = Object.keys(transactionsByDate).sort();
+    const labels = Object.keys(transactionsByDate).sort(); // Sort dates
     const values = labels.map(date => transactionsByDate[date]);
 
     const ctx = document.getElementById('transactionsOverTimeChart').getContext('2d');
