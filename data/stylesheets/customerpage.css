@@ -99,3 +99,44 @@ body {
     border-color: #1e4a8a;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 }
+.action-buttons button {
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.action-buttons button:hover {
+    background-color: #45a049;
+}
+
+.add-button {
+    padding: 5px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.add-button:hover {
+    background-color: #0056b3;
+}
+
+.edit-button {
+    background-color: #f0ad4e;
+}
+
+.edit-button:hover {
+    background-color: #ec971f;
+}
+
+.delete-button {
+    background-color: #d9534f;
+}
+
+.delete-button:hover {
+    background-color: #c9302c;
+}
