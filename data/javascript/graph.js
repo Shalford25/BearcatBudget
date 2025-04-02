@@ -218,25 +218,38 @@ async function renderServicesOverTime() {
         return;
     }
 
-    // Group data by service_start date and count the number of services
+    // Track active services by date
     const servicesByDate = {};
     graphData.forEach(row => {
-        if (row.service_start) {
-            const date = new Date(row.service_start).toISOString().split('T')[0]; // Format as YYYY-MM-DD
-            servicesByDate[date] = (servicesByDate[date] || 0) + 1;
+        if (row.service_start && row.service_duration) {
+            const startDate = new Date(row.service_start);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + row.service_duration); // Add duration to start date
+
+            // Increment the count for each date the service is active
+            for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                const formattedDate = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+                servicesByDate[formattedDate] = (servicesByDate[formattedDate] || 0) + 1;
+            }
         }
     });
 
     const labels = Object.keys(servicesByDate).sort(); // Sort dates
     const values = labels.map(date => servicesByDate[date]);
 
-    const ctx = document.getElementById('servicesOverTimeChart').getContext('2d');
+    const canvas = document.getElementById('servicesOverTimeChart');
+    if (!canvas) {
+        console.error('Canvas element for Services Over Time graph not found.');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Services Over Time',
+                label: 'Active Services Over Time',
                 data: values,
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
