@@ -1,3 +1,11 @@
+// Utility function to format column names
+function formatColumnName(columnName) {
+    return columnName
+        .split('_') // Split the column name by underscores
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+        .join(' '); // Join the words with spaces
+}
+
 // Function to fetch and display table data
 async function displayTable(tableName) {
     try {
@@ -18,87 +26,73 @@ async function displayTable(tableName) {
             const table = document.getElementById('dataTable');
             table.innerHTML = ''; // Clear existing table data
 
-            // Create table headers
-            const headerRow = document.createElement('tr');
-            Object.keys(data[0]).forEach(key => {
-                const th = document.createElement('th');
-                th.innerText = key;
-                headerRow.appendChild(th);
-            });
-
-            // Add action column for editing/deleting rows if the user has permission
-            if (permission === 1) {
-                const actionTh = document.createElement('th');
-                actionTh.innerText = 'Actions';
-                headerRow.appendChild(actionTh);
-            }
-
-            table.appendChild(headerRow);
-
-            // Create table rows
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                Object.entries(row).forEach(([key, value]) => {
-                    const td = document.createElement('td');
-
-                    // Format date columns
-                    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
-                        const date = new Date(value);
-                        if (!isNaN(date.getTime())) {
-                            // Convert to EST
-                            const estDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-                            const formattedDate = `${estDate.getMonth() + 1}/${estDate.getDate()}/${estDate.getFullYear()}`;
-                            td.innerText = formattedDate;
-                        } else {
-                            td.innerText = value; // Fallback for invalid dates
-                        }
-                    } else if (key.toLowerCase() === 'service_start') {
-                        const date = new Date(value);
-                        if (!isNaN(date.getTime())) {
-                            // Format the date as MM/DD/YYYY
-                            const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-                            td.innerText = formattedDate;
-                        } else {
-                            td.innerText = value; // Fallback for invalid dates
-                        }
-                    } else {
-                        td.innerText = value;
-                    }
-                    tr.appendChild(td);
+            if (data.length > 0) {
+                // Create table headers
+                const headerRow = document.createElement('tr');
+                Object.keys(data[0]).forEach(key => {
+                    const th = document.createElement('th');
+                    th.innerText = formatColumnName(key); // Format column names
+                    headerRow.appendChild(th);
                 });
 
-                // Add edit and delete buttons if the user has permission
+                // Add action column for editing/deleting rows if the user has permission
                 if (permission === 1) {
-                    const actionTd = document.createElement('td');
-                    const editButton = document.createElement('button');
-                    editButton.innerText = 'Edit';
-                    editButton.classList.add('edit-button'); 
-                    editButton.onclick = () => editRow(row, tableName);
-                    const deleteButton = document.createElement('button');
-                    deleteButton.innerText = 'Delete';
-                    deleteButton.classList.add('delete-button'); 
-                    deleteButton.onclick = () => deleteRow(row, tableName);
-                    actionTd.classList.add('action-buttons'); 
-                    actionTd.appendChild(editButton);
-                    actionTd.appendChild(deleteButton);
-                    tr.appendChild(actionTd);
+                    const actionTh = document.createElement('th');
+                    actionTh.innerText = 'Actions';
+                    headerRow.appendChild(actionTh);
                 }
 
-                table.appendChild(tr);
-            });
+                table.appendChild(headerRow);
 
-            // Add a row for adding new data if the user has permission
-            if (permission === 1) {
-                const addRow = document.createElement('tr');
-                const addButton = document.createElement('button');
-                addButton.innerText = 'Add Row';
-                addButton.classList.add('add-button');
-                addButton.onclick = () => addRowToTable(tableName);
-                const addTd = document.createElement('td');
-                addTd.colSpan = Object.keys(data[0]).length + 1; // Span all columns
-                addTd.appendChild(addButton);
-                addRow.appendChild(addTd);
-                table.appendChild(addRow);
+                // Create table rows
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    Object.entries(row).forEach(([key, value]) => {
+                        const td = document.createElement('td');
+
+                        // Format date columns
+                        if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
+                            const date = new Date(value);
+                            if (!isNaN(date.getTime())) {
+                                // Convert to MM/DD/YYYY format
+                                const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+                                td.innerText = formattedDate;
+                            } else {
+                                td.innerText = value; // Fallback for invalid dates
+                            }
+                        } else {
+                            td.innerText = value;
+                        }
+                        tr.appendChild(td);
+                    });
+
+                    // Add edit and delete buttons if the user has permission
+                    if (permission === 1) {
+                        const actionTd = document.createElement('td');
+                        const editButton = document.createElement('button');
+                        editButton.innerText = 'Edit';
+                        editButton.classList.add('edit-button');
+                        editButton.onclick = () => editRow(row, tableName);
+                        const deleteButton = document.createElement('button');
+                        deleteButton.innerText = 'Delete';
+                        deleteButton.classList.add('delete-button');
+                        deleteButton.onclick = () => deleteRow(row, tableName);
+                        actionTd.classList.add('action-buttons');
+                        actionTd.appendChild(editButton);
+                        actionTd.appendChild(deleteButton);
+                        tr.appendChild(actionTd);
+                    }
+
+                    table.appendChild(tr);
+                });
+            } else {
+                // Display a message if no data is available
+                const noDataRow = document.createElement('tr');
+                const noDataCell = document.createElement('td');
+                noDataCell.colSpan = Object.keys(data[0]).length + (permission === 1 ? 1 : 0); // Adjust colspan for "Actions" column
+                noDataCell.textContent = 'No data available.';
+                noDataRow.appendChild(noDataCell);
+                table.appendChild(noDataRow);
             }
         } else {
             alert(result.message || 'Failed to fetch table data.');
