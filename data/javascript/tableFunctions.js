@@ -54,7 +54,17 @@ async function displayTable(tableName) {
                         if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
                             const date = new Date(value);
                             if (!isNaN(date.getTime())) {
-                                // Convert to MM/DD/YYYY format
+                                // Convert to EST
+                                const estDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                                const formattedDate = `${estDate.getMonth() + 1}/${estDate.getDate()}/${estDate.getFullYear()}`;
+                                td.innerText = formattedDate;
+                            } else {
+                                td.innerText = value; // Fallback for invalid dates
+                            }
+                        } else if (key.toLowerCase() === 'service_start') {
+                            const date = new Date(value);
+                            if (!isNaN(date.getTime())) {
+                                // Format the date as MM/DD/YYYY
                                 const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
                                 td.innerText = formattedDate;
                             } else {
@@ -85,6 +95,20 @@ async function displayTable(tableName) {
 
                     table.appendChild(tr);
                 });
+
+                // Add a row for adding new data if the user has permission
+                if (permission === 1) {
+                    const addRow = document.createElement('tr');
+                    const addButton = document.createElement('button');
+                    addButton.innerText = 'Add Row';
+                    addButton.classList.add('add-button');
+                    addButton.onclick = () => addRowToTable(tableName);
+                    const addTd = document.createElement('td');
+                    addTd.colSpan = Object.keys(data[0]).length + 1; // Span all columns
+                    addTd.appendChild(addButton);
+                    addRow.appendChild(addTd);
+                    table.appendChild(addRow);
+                }
             } else {
                 // Display a message if no data is available
                 const noDataRow = document.createElement('tr');
