@@ -127,50 +127,6 @@ async function renderInventoryStock() {
     });
 }
 
-// Render Revenue by Service Graph
-async function renderRevenueByService() {
-    const graphData = await fetchGraphData('transaction');
-
-    if (graphData.length === 0) {
-        console.error('No data available for Revenue by Service graph.');
-        return;
-    }
-
-    // Group data by service and calculate total revenue
-    const revenueByService = {};
-    graphData.forEach(row => {
-        if (row.transaction_type === 'sale' && row.service_name && row.transaction_amount) {
-            revenueByService[row.service_name] = (revenueByService[row.service_name] || 0) + row.transaction_amount;
-        }
-    });
-
-    const labels = Object.keys(revenueByService);
-    const values = Object.values(revenueByService);
-
-    const ctx = document.getElementById('revenueByServiceChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Revenue by Service',
-                data: values,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
 // Render Transactions Over Time Graph
 async function renderTransactionsOverTime() {
     const graphData = await fetchGraphData('transaction');
@@ -253,12 +209,57 @@ async function renderInventoryValue() {
     });
 }
 
+// Render Services Over Time Graph
+async function renderServicesOverTime() {
+    const graphData = await fetchGraphData('service');
+
+    if (graphData.length === 0) {
+        console.error('No data available for Services Over Time graph.');
+        return;
+    }
+
+    // Group data by service_start date and count the number of services
+    const servicesByDate = {};
+    graphData.forEach(row => {
+        if (row.service_start) {
+            const date = new Date(row.service_start).toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            servicesByDate[date] = (servicesByDate[date] || 0) + 1;
+        }
+    });
+
+    const labels = Object.keys(servicesByDate).sort(); // Sort dates
+    const values = labels.map(date => servicesByDate[date]);
+
+    const ctx = document.getElementById('servicesOverTimeChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Services Over Time',
+                data: values,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
 // Automatically render all graphs when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     renderServicePrices();
     renderTransactionTypes();
     renderInventoryStock();
-    renderRevenueByService();
     renderTransactionsOverTime();
     renderInventoryValue();
+    renderServicesOverTime();
 });

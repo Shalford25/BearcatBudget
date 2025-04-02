@@ -78,11 +78,6 @@
                 </div>
 
                 <div class="graph-box">
-                    <h3>Revenue by Service</h3>
-                    <canvas id="revenueByServiceChart" width="400" height="200"></canvas>
-                </div>
-
-                <div class="graph-box">
                     <h3>Transactions Over Time</h3>
                     <canvas id="transactionsOverTimeChart" width="400" height="200"></canvas>
                 </div>
@@ -91,7 +86,17 @@
                     <h3>Inventory Value by Item</h3>
                     <canvas id="inventoryValueChart" width="400" height="200"></canvas>
                 </div>
+
+                <div class="graph-box">
+                    <h3>Services Over Time</h3>
+                    <canvas id="servicesOverTimeChart" width="400" height="200"></canvas>
+                </div>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                renderServicesOverTime();
+            });
+        </script>
     </body>
 </html>
