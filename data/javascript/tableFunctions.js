@@ -72,10 +72,13 @@ async function displayTable(tableName) {
                     const actionTd = document.createElement('td');
                     const editButton = document.createElement('button');
                     editButton.innerText = 'Edit';
+                    editButton.classList.add('edit-button'); 
                     editButton.onclick = () => editRow(row, tableName);
                     const deleteButton = document.createElement('button');
                     deleteButton.innerText = 'Delete';
+                    deleteButton.classList.add('delete-button'); 
                     deleteButton.onclick = () => deleteRow(row, tableName);
+                    actionTd.classList.add('action-buttons'); 
                     actionTd.appendChild(editButton);
                     actionTd.appendChild(deleteButton);
                     tr.appendChild(actionTd);
@@ -89,6 +92,7 @@ async function displayTable(tableName) {
                 const addRow = document.createElement('tr');
                 const addButton = document.createElement('button');
                 addButton.innerText = 'Add Row';
+                addButton.classList.add('add-button');
                 addButton.onclick = () => addRowToTable(tableName);
                 const addTd = document.createElement('td');
                 addTd.colSpan = Object.keys(data[0]).length + 1; // Span all columns

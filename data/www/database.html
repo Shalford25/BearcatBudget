@@ -52,6 +52,12 @@
             document.addEventListener('DOMContentLoaded', loadNavbar);
         </script>
         <style>
+            .tabs {
+                margin: 20px 0;
+                padding:10px;
+                text-align: left;
+            }
+    
             .tab {
                 display: inline-block;
                 padding: 10px 20px;
@@ -59,10 +65,56 @@
                 background-color: #f0f0f0;
                 border: 1px solid #ccc;
                 margin-right: 5px;
+                border-radius: 5px;
             }
+    
             .tab.active {
                 background-color: #ddd;
                 font-weight: bold;
+            }
+    
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+    
+            table, th, td {
+                border: 1px solid #ddd;
+            }
+    
+            th, td {
+                padding: 10px;
+                text-align: left;
+            }
+    
+            th {
+                background-color: #f4f4f4;
+            }
+    
+            tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+    
+            tr:hover {
+                background-color: #f1f1f1;
+            }
+    
+            button {
+                padding: 5px 10px;
+                cursor: pointer;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+            }
+    
+            button:hover {
+                background-color: #45a049;
+            }
+    
+            .action-buttons button {
+                margin: 0 5px;
             }
         </style>
     </head>

@@ -21,7 +21,14 @@
 
                     if (result.success && result.isLoggedIn) {
                         const welcomeMessage = document.querySelector('.accountBar h2');
-                        welcomeMessage.textContent = `Welcome, ${username}!`;
+
+                        // Modify the username to capitalize first and last names
+                        const formattedUsername = username
+                            .split('_') // Split by underscores
+                            .map(namePart => namePart.charAt(0).toUpperCase() + namePart.slice(1).toLowerCase()) // Capitalize each part
+                            .join(' '); // Join with spaces
+
+                        welcomeMessage.textContent = `Welcome, ${formattedUsername}!`;
                     } else {
                         alert('Your session has expired. Redirecting to login page.');
                         window.location.href = 'login.html';
@@ -57,13 +64,12 @@
     </head>
     <body>
         <div id="navbar-container"></div>
-
         <div class="content">
             <div class="accountBar">
                 <h2>Welcome, Username Here!</h2>
             </div>
             <div class="container">
-                                <div class="graph-box">
+                <div class="graph-box">
                     <h3>Service Prices</h3>
                     <canvas id="servicePricesChart" width="400" height="200"></canvas>
                 </div>
@@ -79,11 +85,6 @@
                 </div>
 
                 <div class="graph-box">
-                    <h3>Revenue by Service</h3>
-                    <canvas id="revenueByServiceChart" width="400" height="200"></canvas>
-                </div>
-
-                <div class="graph-box">
                     <h3>Transactions Over Time</h3>
                     <canvas id="transactionsOverTimeChart" width="400" height="200"></canvas>
                 </div>
@@ -92,7 +93,17 @@
                     <h3>Inventory Value by Item</h3>
                     <canvas id="inventoryValueChart" width="400" height="200"></canvas>
                 </div>
+
+                <div class="graph-box">
+                    <h3>Services Over Time</h3>
+                    <canvas id="servicesOverTimeChart" width="400" height="200"></canvas>
+                </div>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                renderServicesOverTime();
+            });
+        </script>
     </body>
 </html>
