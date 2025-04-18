@@ -349,6 +349,10 @@ app.get('/api/getGraphData', (req, res) => {
 app.post('/api/addRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
+    console.log('Incoming table:', table); // Debugging
+    console.log('Incoming row:', row); // Debugging
+    console.log('Allowed columns for table:', allowedTables[table]); // Debugging
+
     if (!table || !row) {
         return res.status(400).json({
             success: false,
@@ -372,6 +376,8 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
             filteredRow[key] = row[key];
         }
     });
+
+    console.log('Filtered row:', filteredRow); // Debugging
 
     if (Object.keys(filteredRow).length === 0) {
         return res.status(400).json({
