@@ -356,27 +356,33 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
         });
     }
 
-    // Validate table name to prevent SQL injection
-    const allowedTables = ['service', 'transaction', 'inventory'];
-    if (!allowedTables.includes(table)) {
+    // Validate table name
+    const allowedColumns = allowedTables[table];
+    if (!allowedColumns) {
         return res.status(400).json({
             success: false,
             message: 'Invalid table name.',
         });
     }
 
-    // Exclude the "id" field from the row data
-    const tableIdColumns = {
-        service: 'service_id',
-        transaction: 'transaction_id',
-        inventory: 'inventory_id',
-    };
-    const idColumn = tableIdColumns[table];
-    delete row[idColumn];
+    // Filter row data to include only allowed columns
+    const filteredRow = {};
+    Object.keys(row).forEach((key) => {
+        if (allowedColumns.includes(key)) {
+            filteredRow[key] = row[key];
+        }
+    });
 
-    // Insert the row into the database
-    const columns = Object.keys(row).join(', ');
-    const values = Object.values(row);
+    if (Object.keys(filteredRow).length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'No valid columns provided for the table.',
+        });
+    }
+
+    // Construct the SQL query
+    const columns = Object.keys(filteredRow).join(', ');
+    const values = Object.values(filteredRow);
     const placeholders = values.map(() => '?').join(', ');
 
     const sql = `INSERT INTO ?? (${columns}) VALUES (${placeholders})`;
@@ -404,6 +410,15 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
         });
     }
 
+    // Validate table name
+    const allowedColumns = allowedTables[table];
+    if (!allowedColumns) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid table name.',
+        });
+    }
+
     // Map table names to their respective ID columns
     const tableIdColumns = {
         service: 'service_id',
@@ -427,9 +442,22 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
         });
     }
 
-    const updateData = { ...row };
-    delete updateData[idColumn]; // Remove the ID from the update data
+    // Filter row data to include only allowed columns
+    const updateData = {};
+    Object.keys(row).forEach((key) => {
+        if (allowedColumns.includes(key) && key !== idColumn) {
+            updateData[key] = row[key];
+        }
+    });
 
+    if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'No valid columns provided for the update.',
+        });
+    }
+
+    // Construct the SQL query
     const sql = `UPDATE ?? SET ? WHERE ?? = ?`;
     pool.query(sql, [table, updateData, idColumn, row[idColumn]], (err, result) => {
         if (err) {
@@ -518,3 +546,9 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
         });
     });
 });
+
+const allowedTables = {
+    service: ['service_id', 'service_name', 'service_description', 'service_price', 'service_duration', 'service_start', 'service_update'],
+    transaction: ['transaction_id', 'account_id', 'transaction_type', 'transaction_amount', 'transaction_date', 'status'],
+    inventory: ['inventory_id', 'item_name', 'description', 'quantity', 'unit_price', 'last_updated'],
+};
