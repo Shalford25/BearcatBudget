@@ -20,14 +20,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// Create a MySQL connection pool
+// Creating a MySQL connection pool
 const pool = mysql.createPool({
     connectionLimit: 10,
-    host: '127.0.0.1', // Use IPv4 explicitly
+    host: '127.0.0.1', // Localhost IP
     user: 'root',
     password: 'yeet',
     database: 'bearcatbudget',
-    port: 3306, // Ensure this matches your MySQL server's port
+    port: 3306,
 });
 
 // Periodically ping the database to keep the connection alive
