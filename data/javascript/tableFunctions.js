@@ -129,22 +129,18 @@ async function addRowToTable(tableName) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Use saved column names
-    const headers = tableColumnNames[tableName].filter(header => !header.toLowerCase().includes('id') || header === 'account_id'); // Include `account_id`
+    // Use saved column names, excluding `account_id` for transactions
+    const headers = tableColumnNames[tableName].filter(header => header !== 'account_id');
 
     headers.forEach(header => {
         const td = document.createElement('td');
         const input = document.createElement('input');
 
-        if (header.toLowerCase().includes('duration')) {
-            input.type = 'number'; // Use a number input for duration
+        if (header.toLowerCase().includes('amount')) {
+            input.type = 'number'; // Use a number input for amounts
             input.min = '0'; // Optional: Set a minimum value
         } else if (header.toLowerCase().includes('date') || header.toLowerCase().includes('time')) {
             input.type = 'date'; // Use a date picker for date columns
-        } else if (header === 'account_id') {
-            input.type = 'text';
-            input.value = localStorage.getItem('account_id'); // Automatically set the account ID
-            input.readOnly = true; // Make it read-only
         } else {
             input.type = 'text';
         }
@@ -165,6 +161,15 @@ async function addRowToTable(tableName) {
         inputs.forEach((input, index) => {
             rowData[headers[index]] = input.value;
         });
+
+        // Automatically include `account_id` from localStorage
+        const accountId = localStorage.getItem('account_id');
+        if (!accountId) {
+            alert('Account ID is missing. Please log in again.');
+            window.location.href = 'login.html';
+            return;
+        }
+        rowData['account_id'] = accountId;
 
         const username = localStorage.getItem('username');
         const sessionId = localStorage.getItem('sessionId');
