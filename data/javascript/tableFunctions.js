@@ -56,6 +56,11 @@ async function displayTable(tableName) {
                     tableColumnNames[tableName].forEach(key => {
                         const td = document.createElement('td');
 
+                        // Log raw values for debugging
+                        if (key === 'service_start' || key === 'service_update') {
+                            console.log(`Raw value for ${key}:`, row[key]);
+                        }
+
                         // Format date columns
                         if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
                             const date = new Date(row[key]);
