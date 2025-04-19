@@ -62,7 +62,7 @@ async function displayTable(tableName) {
                         }
 
                         // Format date columns
-                        if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
+                        if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time') || key === 'service_start') {
                             const date = new Date(row[key]);
                             if (!isNaN(date.getTime())) {
                                 const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
