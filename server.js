@@ -425,56 +425,42 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
         });
     }
 
-    // Map table names to their respective ID columns
-    const tableIdColumns = {
-        service: 'service_id',
-        transaction: 'transaction_id',
-        inventory: 'inventory_id',
-    };
-
-    const idColumn = tableIdColumns[table];
-    if (!idColumn) {
-        return res.status(400).json({
-            success: false,
-            message: 'Invalid table name.',
-        });
-    }
-
-    // Ensure the row contains the correct ID field
-    if (!row[idColumn]) {
-        return res.status(400).json({
-            success: false,
-            message: `Row is missing the required ID field: ${idColumn}`,
-        });
-    }
-
     // Filter row data to include only allowed columns
-    const updateData = {};
+    const filteredRow = {};
     Object.keys(row).forEach((key) => {
-        if (allowedColumns.includes(key) && key !== idColumn) {
-            updateData[key] = row[key];
+        if (allowedColumns.includes(key)) {
+            filteredRow[key] = row[key];
         }
     });
 
-    if (Object.keys(updateData).length === 0) {
+    if (Object.keys(filteredRow).length === 0) {
         return res.status(400).json({
             success: false,
-            message: 'No valid columns provided for the update.',
+            message: 'No valid columns provided for the table.',
         });
     }
 
     // Construct the SQL query
-    const sql = `UPDATE ?? SET ? WHERE ?? = ?`;
-    pool.query(sql, [table, updateData, idColumn, row[idColumn]], (err, result) => {
+    const idField = `${table}_id`; // Assuming the ID field is named as table_id
+    const idValue = row[idField];
+    delete filteredRow[idField]; // Remove the ID field from the update data
+
+    const setClause = Object.keys(filteredRow)
+        .map(key => `${key} = ?`)
+        .join(', ');
+    const values = [...Object.values(filteredRow), idValue];
+
+    const sql = `UPDATE ?? SET ${setClause} WHERE ${idField} = ?`;
+    pool.query(sql, [table, ...values], (err, result) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).json({
                 success: false,
-                message: 'Failed to update row.',
+                message: 'Failed to update row in the database.',
             });
         }
 
-        res.json({ success: true, message: 'Row updated successfully.' });
+        res.json({ success: true, message: 'Row updated successfully!' });
     });
 });
 
