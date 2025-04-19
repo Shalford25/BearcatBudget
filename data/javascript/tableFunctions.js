@@ -1,3 +1,6 @@
+// Global object to store column names for each table
+const tableColumnNames = {};
+
 // Utility function to format column names
 function formatColumnName(columnName) {
     return columnName
@@ -27,9 +30,12 @@ async function displayTable(tableName) {
             table.innerHTML = ''; // Clear existing table data
 
             if (data.length > 0) {
+                // Save column names for the table
+                tableColumnNames[tableName] = Object.keys(data[0]);
+
                 // Create table headers
                 const headerRow = document.createElement('tr');
-                Object.keys(data[0]).forEach(key => {
+                tableColumnNames[tableName].forEach(key => {
                     const th = document.createElement('th');
                     th.innerText = formatColumnName(key); // Format column names
                     headerRow.appendChild(th);
@@ -47,31 +53,20 @@ async function displayTable(tableName) {
                 // Create table rows
                 data.forEach(row => {
                     const tr = document.createElement('tr');
-                    Object.entries(row).forEach(([key, value]) => {
+                    tableColumnNames[tableName].forEach(key => {
                         const td = document.createElement('td');
 
                         // Format date columns
                         if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) {
-                            const date = new Date(value);
+                            const date = new Date(row[key]);
                             if (!isNaN(date.getTime())) {
-                                // Convert to EST
-                                const estDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-                                const formattedDate = `${estDate.getMonth() + 1}/${estDate.getDate()}/${estDate.getFullYear()}`;
-                                td.innerText = formattedDate;
-                            } else {
-                                td.innerText = value; // Fallback for invalid dates
-                            }
-                        } else if (key.toLowerCase() === 'service_start') {
-                            const date = new Date(value);
-                            if (!isNaN(date.getTime())) {
-                                // Format the date as MM/DD/YYYY
                                 const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
                                 td.innerText = formattedDate;
                             } else {
-                                td.innerText = value; // Fallback for invalid dates
+                                td.innerText = row[key]; // Fallback for invalid dates
                             }
                         } else {
-                            td.innerText = value;
+                            td.innerText = row[key];
                         }
                         tr.appendChild(td);
                     });
@@ -104,7 +99,7 @@ async function displayTable(tableName) {
                     addButton.classList.add('add-button');
                     addButton.onclick = () => addRowToTable(tableName);
                     const addTd = document.createElement('td');
-                    addTd.colSpan = Object.keys(data[0]).length + 1; // Span all columns
+                    addTd.colSpan = tableColumnNames[tableName].length + 1; // Span all columns
                     addTd.appendChild(addButton);
                     addRow.appendChild(addTd);
                     table.appendChild(addRow);
@@ -113,7 +108,7 @@ async function displayTable(tableName) {
                 // Display a message if no data is available
                 const noDataRow = document.createElement('tr');
                 const noDataCell = document.createElement('td');
-                noDataCell.colSpan = Object.keys(data[0]).length + (permission === 1 ? 1 : 0); // Adjust colspan for "Actions" column
+                noDataCell.colSpan = tableColumnNames[tableName].length + (permission === 1 ? 1 : 0); // Adjust colspan for "Actions" column
                 noDataCell.textContent = 'No data available.';
                 noDataRow.appendChild(noDataCell);
                 table.appendChild(noDataRow);
@@ -134,34 +129,26 @@ async function addRowToTable(tableName) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Get the column headers, excluding the "ID" column
-    const headers = Array.from(table.rows[0].cells)
-        .map(cell => cell.innerText)
-        .filter(header => !header.toLowerCase().includes('id')) // Exclude "ID"
-        .filter(header => header.toLowerCase() !== 'actions'); // Exclude "Actions"
+    // Use saved column names
+    const headers = tableColumnNames[tableName].filter(header => !header.toLowerCase().includes('id')); // Exclude "ID"
 
-
-    for (let i = 0; i < headers.length; i++) {
+    headers.forEach(header => {
         const td = document.createElement('td');
         const input = document.createElement('input');
 
-        if (headers[i].toLowerCase().includes('duration')) {
+        if (header.toLowerCase().includes('duration')) {
             input.type = 'number'; // Use a number input for duration
             input.min = '0'; // Optional: Set a minimum value
-        } else if (
-            headers[i].toLowerCase().includes('date') ||
-            headers[i].toLowerCase().includes('time') ||
-            headers[i].toLowerCase() === 'service_start'
-        ) {
+        } else if (header.toLowerCase().includes('date') || header.toLowerCase().includes('time')) {
             input.type = 'date'; // Use a date picker for date columns
         } else {
             input.type = 'text';
         }
 
-        input.placeholder = `${headers[i]}`;
+        input.placeholder = header;
         td.appendChild(input);
         newRow.appendChild(td);
-    }
+    });
 
     // Add "Confirm" button
     const confirmButton = document.createElement('button');
@@ -172,26 +159,7 @@ async function addRowToTable(tableName) {
 
         // Collect data from input fields
         inputs.forEach((input, index) => {
-            let value = input.value;
-
-            // Handle numeric inputs
-            if (input.type === 'number') {
-                value = parseInt(value, 10); // Ensure the value is an integer
-                if (isNaN(value)) {
-                    value = null; // Handle invalid numbers
-                }
-            }
-
-            // Handle date inputs
-            if (input.type === 'date') {
-                const date = new Date(input.value);
-                date.setDate(date.getDate() + 1); // Add 1 day
-                value = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-            }
-
-            // Map the value to the correct column name
-            const columnName = headers[index];
-            rowData[columnName] = value;
+            rowData[headers[index]] = input.value;
         });
 
         const username = localStorage.getItem('username');
