@@ -98,6 +98,9 @@ async function routeHome() {
         const result = await response.json();
 
         if (response.ok && result.success && result.isLoggedIn) {
+            // After successful login
+            localStorage.setItem('account_id', result.account_id); // Save the account ID
+
             // User is logged in, redirect to customerpage.html
             window.location.href = 'customerpage.html';
         } else {

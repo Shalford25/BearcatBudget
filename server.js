@@ -347,20 +347,26 @@ app.get('/api/getGraphData', (req, res) => {
 
 // Route to add a new row
 app.post('/api/addRow', checkPermissions, (req, res) => {
-    const { table, row } = req.body;
+    const { table, row, username, sessionId } = req.body;
 
-    console.log('Incoming table:', table); // Debugging
-    console.log('Incoming row:', row); // Debugging
-    console.log('Allowed columns for table:', allowedTables[table]); // Debugging
-
-    if (!table || !row) {
-        return res.status(400).json({
+    // Validate session
+    const session = loggedInAccounts[username];
+    if (!session || session.sessionId !== sessionId) {
+        return res.status(403).json({
             success: false,
-            message: 'Table name and row data are required.',
+            message: 'Invalid session. Please log in again.',
         });
     }
 
-    // Validate table name
+    // Ensure account_id matches the logged-in user's account
+    if (row.account_id && row.account_id !== session.account_id) {
+        return res.status(403).json({
+            success: false,
+            message: 'You are not authorized to add rows for this account.',
+        });
+    }
+
+    // Proceed with adding the row
     const allowedColumns = allowedTables[table];
     if (!allowedColumns) {
         return res.status(400).json({
@@ -369,15 +375,12 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
         });
     }
 
-    // Filter row data to include only allowed columns
     const filteredRow = {};
     Object.keys(row).forEach((key) => {
         if (allowedColumns.includes(key)) {
             filteredRow[key] = row[key];
         }
     });
-
-    console.log('Filtered row:', filteredRow); // Debugging
 
     if (Object.keys(filteredRow).length === 0) {
         return res.status(400).json({
@@ -386,7 +389,6 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
         });
     }
 
-    // Construct the SQL query
     const columns = Object.keys(filteredRow).join(', ');
     const values = Object.values(filteredRow);
     const placeholders = values.map(() => '?').join(', ');
