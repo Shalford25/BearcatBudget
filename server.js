@@ -358,15 +358,6 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
             message: 'Invalid session. Please log in again.',
         });
     }
-
-    // Ensure account_id matches the logged-in user's account
-    if (row.account_id && row.account_id !== session.accountId) {
-        return res.status(403).json({
-            success: false,
-            message: 'You are not authorized to add rows for this account.',
-        });
-    }
-
     // Proceed with adding the row
     const allowedColumns = allowedTables[table];
     if (!allowedColumns) {
