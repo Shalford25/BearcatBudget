@@ -130,7 +130,7 @@ async function addRowToTable(tableName) {
     const newRow = document.createElement('tr');
 
     // Use saved column names
-    const headers = tableColumnNames[tableName].filter(header => !header.toLowerCase().includes('id')); // Exclude "ID"
+    const headers = tableColumnNames[tableName].filter(header => !header.toLowerCase().includes('id') || header === 'account_id'); // Include `account_id`
 
     headers.forEach(header => {
         const td = document.createElement('td');
@@ -141,6 +141,10 @@ async function addRowToTable(tableName) {
             input.min = '0'; // Optional: Set a minimum value
         } else if (header.toLowerCase().includes('date') || header.toLowerCase().includes('time')) {
             input.type = 'date'; // Use a date picker for date columns
+        } else if (header === 'account_id') {
+            input.type = 'text';
+            input.value = localStorage.getItem('account_id'); // Automatically set the account ID
+            input.readOnly = true; // Make it read-only
         } else {
             input.type = 'text';
         }
