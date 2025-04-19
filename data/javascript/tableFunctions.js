@@ -203,11 +203,7 @@ async function addRowToTable(tableName) {
 // Function to edit a row
 async function editRow(row, tableName) {
     const table = document.getElementById('dataTable');
-    const idField = {
-        service: 'service_id',
-        transaction: 'transaction_id',
-        inventory: 'inventory_id',
-    }[tableName];
+    const idField = `${tableName}_id`; // Assuming the ID field is named as tableName_id
 
     if (!idField) {
         alert('Invalid table name.');
@@ -237,26 +233,23 @@ async function editRow(row, tableName) {
 
     // Replace cells with input fields
     const originalValues = {};
-    const headers = Array.from(table.rows[0].cells)
-        .map(cell => cell.innerText)
-        .filter(header => header.toLowerCase() !== 'actions'); // Exclude "Actions"
+    const headers = tableColumnNames[tableName]; // Use saved column names
 
-    for (let i = 0; i < rowElement.cells.length - 1; i++) { // Exclude the "Actions" column
-        const cell = rowElement.cells[i];
-        const columnName = headers[i]; // Get column name from filtered headers
-        originalValues[columnName] = cell.innerText;
+    headers.forEach((header, index) => {
+        const cell = rowElement.cells[index];
+        originalValues[header] = cell.innerText;
 
-        if (columnName !== idField) { // Skip the ID column
+        if (header !== idField) { // Skip the ID column
             const input = document.createElement('input');
 
             // Apply restrictions based on column name
-            if (columnName.toLowerCase().includes('duration')) {
+            if (header.toLowerCase().includes('duration')) {
                 input.type = 'number'; // Use a number input for duration
                 input.min = '0'; // Optional: Set a minimum value
             } else if (
-                columnName.toLowerCase().includes('date') ||
-                columnName.toLowerCase().includes('time') ||
-                columnName.toLowerCase() === 'service_start'
+                header.toLowerCase().includes('date') ||
+                header.toLowerCase().includes('time') ||
+                header.toLowerCase() === 'service_start'
             ) {
                 input.type = 'date'; // Use a date picker for date columns
             } else {
@@ -264,11 +257,11 @@ async function editRow(row, tableName) {
             }
 
             input.value = cell.innerText;
-            input.dataset.column = columnName; // Store the column name for later
+            input.dataset.column = header; // Store the column name for later
             cell.innerHTML = '';
             cell.appendChild(input);
         }
-    }
+    });
 
     // Replace the "Actions" column with Confirm and Cancel buttons
     const actionsCell = rowElement.cells[rowElement.cells.length - 1];
@@ -292,7 +285,6 @@ async function editRow(row, tableName) {
             // Handle date inputs
             if (input.type === 'date') {
                 const date = new Date(input.value);
-                date.setDate(date.getDate() + 1); // Add 1 day
                 value = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
             }
 
@@ -338,11 +330,10 @@ async function editRow(row, tableName) {
     cancelButton.innerText = 'Cancel';
     cancelButton.onclick = () => {
         // Restore original values
-        for (let i = 0; i < rowElement.cells.length - 1; i++) {
-            const cell = rowElement.cells[i];
-            const columnName = headers[i];
-            cell.innerHTML = originalValues[columnName];
-        }
+        headers.forEach((header, index) => {
+            const cell = rowElement.cells[index];
+            cell.innerHTML = originalValues[header];
+        });
     };
 
     actionsCell.innerHTML = '';
