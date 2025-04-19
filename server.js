@@ -409,6 +409,9 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
 app.post('/api/editRow', checkPermissions, (req, res) => {
     const { table, row } = req.body;
 
+    console.log('Incoming table:', table); // Debugging
+    console.log('Incoming row:', row); // Debugging
+
     if (!table || !row) {
         return res.status(400).json({
             success: false,
@@ -433,6 +436,8 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
         }
     });
 
+    console.log('Filtered row:', filteredRow); // Debugging
+
     if (Object.keys(filteredRow).length === 0) {
         return res.status(400).json({
             success: false,
@@ -449,6 +454,8 @@ app.post('/api/editRow', checkPermissions, (req, res) => {
         .map(key => `${key} = ?`)
         .join(', ');
     const values = [...Object.values(filteredRow), idValue];
+
+    console.log('Constructed SQL query:', `UPDATE ${table} SET ${setClause} WHERE ${idField} = ?`); // Debugging
 
     const sql = `UPDATE ?? SET ${setClause} WHERE ${idField} = ?`;
     pool.query(sql, [table, ...values], (err, result) => {
