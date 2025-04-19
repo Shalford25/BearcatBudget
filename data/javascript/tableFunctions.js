@@ -171,10 +171,15 @@ async function addRowToTable(tableName) {
         } else {
             const input = document.createElement('input');
 
+            // Apply specific input types based on the column name
             if (header.toLowerCase().includes('amount')) {
                 input.type = 'number'; // Use a number input for amounts
                 input.min = '0'; // Optional: Set a minimum value
-            } else if (header.toLowerCase().includes('date') || header.toLowerCase().includes('time')) {
+            } else if (
+                header.toLowerCase().includes('date') ||
+                header.toLowerCase().includes('time') ||
+                header === 'service_start' // Explicitly include service_start
+            ) {
                 input.type = 'date'; // Use a date picker for date columns
             } else {
                 input.type = 'text';
