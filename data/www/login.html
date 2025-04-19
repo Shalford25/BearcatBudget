@@ -40,11 +40,13 @@
                         // Store session information
                         localStorage.setItem('username', username);
                         localStorage.setItem('sessionId', result.sessionId);
+                        localStorage.setItem('account_id', result.accountId); // Save account_id in localStorage
 
                         // If "Keep me logged in" is checked, store session in a cookie
                         if (keepLoggedIn) {
                             document.cookie = `sessionId=${result.sessionId}; path=/; max-age=${60 * 60 * 24 * 7};`; // 7 days
                             document.cookie = `username=${username}; path=/; max-age=${60 * 60 * 24 * 7};`; // 7 days
+                            document.cookie = `account_id=${result.accountId}; path=/; max-age=${60 * 60 * 24 * 7};`; // 7 days
                         }
 
                         window.location.href = 'customerpage.html';

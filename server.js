@@ -163,10 +163,11 @@ app.post('/api/login', (req, res) => {
 
             if (result.length > 0) {
                 const sessionId = crypto.randomBytes(16).toString('hex');
-                loggedInAccounts[username] = { sessionId, loginTime: new Date() };
+                const accountId = result[0].account_id; // Get the account_id from the database
+                loggedInAccounts[username] = { sessionId, loginTime: new Date(), accountId };
 
-                console.log('Logged in user:', { username, sessionId }); // Debugging log
-                res.json({ success: true, message: 'Login successful!', sessionId });
+                console.log('Logged in user:', { username, sessionId, accountId }); // Debugging log
+                res.json({ success: true, message: 'Login successful!', sessionId, accountId });
             } else {
                 res.status(401).json({ success: false, message: 'Invalid username or password.' });
             }
@@ -359,7 +360,7 @@ app.post('/api/addRow', checkPermissions, (req, res) => {
     }
 
     // Ensure account_id matches the logged-in user's account
-    if (row.account_id && row.account_id !== session.account_id) {
+    if (row.account_id && row.account_id !== session.accountId) {
         return res.status(403).json({
             success: false,
             message: 'You are not authorized to add rows for this account.',
