@@ -519,7 +519,7 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
                 FROM ${table}
             )
             UPDATE ${table}
-            JOIN RESEQUENCED ON ${table}.${idColumn} = RESEQUENCED.${idColumn}
+            JOIN RESEQUENCED ON ${table}.${idColumn} = RESEQUENCED.new_id
             SET ${table}.${idColumn} = RESEQUENCED.new_id;
         `;
         const resetAutoIncrementSql = `ALTER TABLE ${table} AUTO_INCREMENT = 1`;
@@ -545,6 +545,25 @@ app.post('/api/deleteRow', checkPermissions, (req, res) => {
 
                 res.json({ success: true, message: 'Row deleted and IDs re-sequenced successfully.' });
             });
+        });
+    });
+});
+
+app.get('/api/getAccountIds', (req, res) => {
+    const sql = `SELECT account_id FROM accounts`;
+
+    pool.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch account IDs.',
+            });
+        }
+
+        res.json({
+            success: true,
+            accountIds: results.map(row => row.account_id), // Extract only account_id values
         });
     });
 });

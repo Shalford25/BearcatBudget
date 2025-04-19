@@ -129,24 +129,56 @@ async function addRowToTable(tableName) {
     // Create a new row
     const newRow = document.createElement('tr');
 
-    // Use saved column names, excluding `account_id` for transactions
-    const headers = tableColumnNames[tableName].filter(header => header !== 'account_id');
+    // Use saved column names, excluding `transaction_id` and other auto-incrementing IDs
+    const headers = tableColumnNames[tableName].filter(header => !(header.endsWith('_id') && header !== 'account_id'));
 
     headers.forEach(header => {
         const td = document.createElement('td');
-        const input = document.createElement('input');
 
-        if (header.toLowerCase().includes('amount')) {
-            input.type = 'number'; // Use a number input for amounts
-            input.min = '0'; // Optional: Set a minimum value
-        } else if (header.toLowerCase().includes('date') || header.toLowerCase().includes('time')) {
-            input.type = 'date'; // Use a date picker for date columns
+        if (header === 'account_id') {
+            // Create a dropdown for account_id
+            const select = document.createElement('select');
+            select.id = 'accountIdDropdown'; // Assign an ID for easier access
+
+            // Fetch account IDs from the backend
+            fetch('/api/getAccountIds')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // Populate the dropdown with account IDs
+                        result.accountIds.forEach(accountId => {
+                            const option = document.createElement('option');
+                            option.value = accountId;
+                            option.textContent = accountId;
+                            select.appendChild(option);
+                        });
+                    } else {
+                        console.error('Failed to fetch account IDs:', result.message);
+                        alert('Failed to fetch account IDs.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching account IDs:', error);
+                    alert('An error occurred while fetching account IDs.');
+                });
+
+            td.appendChild(select);
         } else {
-            input.type = 'text';
+            const input = document.createElement('input');
+
+            if (header.toLowerCase().includes('amount')) {
+                input.type = 'number'; // Use a number input for amounts
+                input.min = '0'; // Optional: Set a minimum value
+            } else if (header.toLowerCase().includes('date') || header.toLowerCase().includes('time')) {
+                input.type = 'date'; // Use a date picker for date columns
+            } else {
+                input.type = 'text';
+            }
+
+            input.placeholder = header;
+            td.appendChild(input);
         }
 
-        input.placeholder = header;
-        td.appendChild(input);
         newRow.appendChild(td);
     });
 
@@ -154,22 +186,18 @@ async function addRowToTable(tableName) {
     const confirmButton = document.createElement('button');
     confirmButton.innerText = 'Confirm';
     confirmButton.onclick = async () => {
-        const inputs = newRow.querySelectorAll('input');
+        const inputs = newRow.querySelectorAll('input, select'); // Include both inputs and the dropdown
         const rowData = {};
 
         // Collect data from input fields
         inputs.forEach((input, index) => {
-            rowData[headers[index]] = input.value;
+            const header = headers[index];
+            if (header === 'account_id') {
+                rowData[header] = input.value; // Get the selected account_id
+            } else {
+                rowData[header] = input.value;
+            }
         });
-
-        // Automatically include `account_id` from localStorage
-        const accountId = localStorage.getItem('account_id');
-        if (!accountId) {
-            alert('Account ID is missing. Please log in again.');
-            window.location.href = 'login.html';
-            return;
-        }
-        rowData['account_id'] = accountId;
 
         const username = localStorage.getItem('username');
         const sessionId = localStorage.getItem('sessionId');
